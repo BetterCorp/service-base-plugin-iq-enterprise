@@ -7,6 +7,7 @@ import {
   APIAuthRequest,
   APIAuthResponse,
   APICustomerAccount,
+  APICustomerSpecific,
   IEmitAndReturn,
 } from "../../index";
 import { Axios, AxiosResponse } from "axios";

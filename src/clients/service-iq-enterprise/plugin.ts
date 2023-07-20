@@ -5,6 +5,7 @@ import {
 } from "@bettercorp/service-base";
 import {
   APICustomerAccount,
+  APICustomerSpecific,
   IEmitAndReturn,
 } from "../../index";
 
