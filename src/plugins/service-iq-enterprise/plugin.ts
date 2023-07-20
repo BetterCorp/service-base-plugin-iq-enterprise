@@ -39,6 +39,20 @@ export class Service extends ServicesBase<
     super(pluginName, cwd, pluginCwd, log);
   }
 
+  public override async init(): Promise<void> {
+    const self = this;
+    await this.onReturnableEvent(
+      "getCustomersByEmail",
+      async (a, b, c, d) =>
+        await self.getCustomersByEmail(a, b as any, c as any, d as any)
+    );
+    await this.onReturnableEvent(
+      "getCustomerAccountById",
+      async (a, b, c, d) =>
+        await self.getCustomerAccountById(a, b as any, c as any, d as any)
+    );
+  }
+
   private async getAxios(
     hostname: string,
     username: string,
@@ -112,21 +126,19 @@ export class Service extends ServicesBase<
     ).data;
   }
 
-  public async getCustomerAccountById(
-    id: number
-  ): Promise<APICustomerSubAccount>;
+  public async getCustomerAccountById(id: number): Promise<APICustomerSpecific>;
   public async getCustomerAccountById(
     id: number,
     hostname: string,
     username: string,
     password: string
-  ): Promise<APICustomerSubAccount>;
+  ): Promise<APICustomerSpecific>;
   public async getCustomerAccountById(
     id: number,
     hostname?: string,
     username?: string,
     password?: string
-  ): Promise<APICustomerSubAccount> {
+  ): Promise<APICustomerSpecific> {
     const config = await this.getPluginConfig();
     let axios: Axios;
     if (Tools.isString(hostname)) {
@@ -140,9 +152,8 @@ export class Service extends ServicesBase<
         config.password
       );
     }
-    return (
-      await axios.get<APICustomerSubAccount>(`/api/portal/customer/${id}`)
-    ).data;
+    return (await axios.get<APICustomerSpecific>(`/api/portal/customer/${id}`))
+      .data;
   }
 
   /*public async getCustomerById(id: number): Promise<APICustomer>

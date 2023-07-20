@@ -20,6 +20,9 @@ export class IQEnterpriseClient extends ServicesClient<
   public constructor(self: ServicesBase) {
     super(self);
   }
+  protected override async _register() {
+    await super._register();
+  }
 
   public async getCustomersByEmail(
     email: string
@@ -53,19 +56,19 @@ export class IQEnterpriseClient extends ServicesClient<
 
   public async getCustomerAccountById(
     id: number
-  ): Promise<APICustomerSubAccount>;
+  ): Promise<APICustomerSpecific>;
   public async getCustomerAccountById(
     id: number,
     hostname: string,
     username: string,
     password: string
-  ): Promise<APICustomerSubAccount>;
+  ): Promise<APICustomerSpecific>;
   public async getCustomerAccountById(
     id: number,
     hostname?: string,
     username?: string,
     password?: string
-  ): Promise<APICustomerSubAccount> {
+  ): Promise<APICustomerSpecific> {
     return await this._plugin.emitEventAndReturn(
       "getCustomerAccountById",
       id,

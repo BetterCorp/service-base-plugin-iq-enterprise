@@ -96,5 +96,5 @@ export interface IEmitAndReturn {
     hostname?: string,
     username?: string,
     password?: string
-  ): Promise<APICustomerSubAccount>;
+  ): Promise<APICustomerSpecific>;
 }
