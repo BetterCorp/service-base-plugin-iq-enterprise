@@ -25,48 +25,47 @@ export function webRequest(server: IServerConfig, basePath: string, path: string
   });
 }*/
 
-export interface APICustomer {
+export interface APICustomerAccount {
+  account: string;
+  name: string;
+  trading_as: string;
+  contact: string;
+  sub_accounts: APICustomerSubAccount[];
+}
+
+export interface APICustomerSubAccount {
   idcustomer: number;
   account: string;
-  acc_type: string;
-  name: string;
-  aka: string;
-  id_number: string;
-  vat_nr: string;
-  company_reg: string;
-  acc_balance: AccBalance;
-  pay_category: string;
+  description: string;
+  address: string;
+}
+
+export interface APICustomerSpecific {
+  idcustomer: number;
+  account: string;
+  description: string;
   package: string;
-  package_speed: string;
-  package_value: string;
-  current_usage: string;
-  contact_main: string;
-  phone_main: string;
-  cell_numbers: CellNumber[];
-  emails: Email[];
+  value: string;
+  speed: string;
+  status: string;
+  contact: string;
+  telephone: string;
+  cell_numbers: APICustomerSpecificCellNumber[];
+  emails: APICustomerSpecificEmail[];
   address1: string;
   address2: string;
   atown: string;
   postal1: string;
   postal2: string;
   ptown: string;
-  active: boolean;
 }
 
-export interface AccBalance {
-  days_30: number;
-  days_60_plus: number;
-  current: number;
-  total: number;
-  status: boolean;
-}
-
-export interface CellNumber {
+export interface APICustomerSpecificCellNumber {
   contact: string;
   cell_number: string;
 }
 
-export interface Email {
+export interface APICustomerSpecificEmail {
   email: string;
 }
 
@@ -85,11 +84,17 @@ export interface IEmitAndReturn {
     hostname?: string,
     username?: string,
     password?: string
-  ): Promise<Array<APICustomer>>;
-  getCustomerById(
+  ): Promise<Array<APICustomerAccount>>;
+  /*getCustomerById(
     id: number,
     hostname?: string,
     username?: string,
     password?: string
-  ): Promise<APICustomer>;
+  ): Promise<APICustomerAccount>; */ 
+  getCustomerAccountById(
+    id: number,
+    hostname?: string,
+    username?: string,
+    password?: string
+  ): Promise<APICustomerSubAccount>;
 }
