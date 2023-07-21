@@ -13,6 +13,7 @@ import {
 import { Axios, AxiosResponse } from "axios";
 import { PluginConfig } from "./sec.config";
 import { Tools } from "@bettercorp/tools";
+import axios from "axios";
 
 export interface AxiosInstance {
   hostname: string;
@@ -29,7 +30,7 @@ export class Service extends ServicesBase<
   PluginConfig
 > {
   //private fastify: fastify;
-  private axios: Array<AxiosInstance> = [];
+  private _axios: Array<AxiosInstance> = [];
   constructor(
     pluginName: string,
     cwd: string,
@@ -59,30 +60,32 @@ export class Service extends ServicesBase<
     password: string
   ): Promise<Axios> {
     const now = new Date().getTime() - 5 * 1000;
-    for (let i = 0; i < this.axios.length; i++) {
-      if (this.axios[i].hostname !== hostname) continue;
-      if (this.axios[i].username !== username) continue;
-      if (this.axios[i].exp < now) {
-        this.axios.splice(i, 1);
+    for (let i = 0; i < this._axios.length; i++) {
+      if (this._axios[i].hostname !== hostname) continue;
+      if (this._axios[i].username !== username) continue;
+      if (this._axios[i].exp < now) {
+        this._axios.splice(i, 1);
         break;
       }
-      return this.axios[i].instance;
+      return this._axios[i].instance;
     }
-    const instance = new Axios({
-      baseURL: hostname,
+    const instance = axios.create({
+      //baseURL: hostname,
+      headers: {},
     });
-    const resp = await new Axios().post<
+    instance.defaults.baseURL = hostname;
+    const resp = await instance.post<
       APIAuthRequest,
       AxiosResponse<APIAuthResponse>
-    >(`${hostname}/api/auth/login`, {
-      username,
+    >('/api/auth/login', {
+      user: username,
       password,
     });
     if (resp.status !== 200) throw new Error("Invalid response");
     instance.defaults.headers.common[
       "Authorization"
     ] = `Bearer ${resp.data.tokenstring}`;
-    this.axios.push({
+    this._axios.push({
       hostname,
       username,
       instance,
@@ -121,7 +124,7 @@ export class Service extends ServicesBase<
     }
     return (
       await axios.get<Array<APICustomerAccount>>(
-        `/api/portal/customer?email${encodeURIComponent(email)}`
+        `/api/portal/customer?email=${encodeURIComponent(email)}`
       )
     ).data;
   }

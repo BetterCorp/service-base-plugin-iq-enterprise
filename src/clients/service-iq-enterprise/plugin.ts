@@ -16,7 +16,7 @@ export class IQEnterpriseClient extends ServicesClient<
   ServiceCallable,
   ServiceCallable
 > {
-  public static readonly pluginName = "service-iq-enterprise";
+  override _pluginName: string = "service-iq-enterprise";
   public constructor(self: ServicesBase) {
     super(self);
   }
@@ -54,9 +54,7 @@ export class IQEnterpriseClient extends ServicesClient<
     return await this._plugin.emitEventAndReturn('getCustomerById', id, hostname, username, password);
   }*/
 
-  public async getCustomerAccountById(
-    id: number
-  ): Promise<APICustomerSpecific>;
+  public async getCustomerAccountById(id: number): Promise<APICustomerSpecific>;
   public async getCustomerAccountById(
     id: number,
     hostname: string,

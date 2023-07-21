@@ -1,3 +1,5 @@
+export { IQEnterpriseClient } from "./clients/service-iq-enterprise/plugin";
+
 /*
 // tslint:disable-next-line: max-line-length
 export function webRequest(server: IServerConfig, basePath: string, path: string, method: string, params: Object | undefined = undefined, data: Object | undefined = undefined, additionalProps: Object | undefined = undefined) {
@@ -90,7 +92,7 @@ export interface IEmitAndReturn {
     hostname?: string,
     username?: string,
     password?: string
-  ): Promise<APICustomerAccount>; */ 
+  ): Promise<APICustomerAccount>; */
   getCustomerAccountById(
     id: number,
     hostname?: string,
