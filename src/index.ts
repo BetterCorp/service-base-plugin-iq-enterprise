@@ -87,16 +87,22 @@ export interface IEmitAndReturn {
     username?: string,
     password?: string
   ): Promise<Array<APICustomerAccount>>;
-  /*getCustomerById(
+  getSubAccountById(
     id: number,
     hostname?: string,
     username?: string,
     password?: string
-  ): Promise<APICustomerAccount>; */
-  getCustomerAccountById(
-    id: number,
+  ): Promise<APICustomerSpecific>; 
+  getCustomerByAccountId(
+    id: string,
     hostname?: string,
     username?: string,
     password?: string
-  ): Promise<APICustomerSpecific>;
+  ): Promise<APICustomerAccount>;
+  getSubAccountsByAccountId(
+    id: string,
+    hostname?: string,
+    username?: string,
+    password?: string
+  ): Promise<Array<APICustomerSpecific>>;
 }

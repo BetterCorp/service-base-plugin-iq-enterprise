@@ -48,27 +48,65 @@ export class IQEnterpriseClient extends ServicesClient<
     );
   }
 
-  /*public async getCustomerById(id: number): Promise<APICustomer>
-  public async getCustomerById(id: number, hostname: string, username: string, password: string): Promise<APICustomer>
-  public async getCustomerById(id: number, hostname?: string, username?: string, password?: string): Promise<APICustomer> {
-    return await this._plugin.emitEventAndReturn('getCustomerById', id, hostname, username, password);
-  }*/
-
-  public async getCustomerAccountById(id: number): Promise<APICustomerSpecific>;
-  public async getCustomerAccountById(
+  public async getSubAccountById(id: number): Promise<APICustomerSpecific>;
+  public async getSubAccountById(
     id: number,
     hostname: string,
     username: string,
     password: string
   ): Promise<APICustomerSpecific>;
-  public async getCustomerAccountById(
+  public async getSubAccountById(
     id: number,
     hostname?: string,
     username?: string,
     password?: string
   ): Promise<APICustomerSpecific> {
     return await this._plugin.emitEventAndReturn(
-      "getCustomerAccountById",
+      "getSubAccountById",
+      id,
+      hostname,
+      username,
+      password
+    );
+  }
+
+  public async getCustomerByAccountId(id: string): Promise<APICustomerAccount>;
+  public async getCustomerByAccountId(
+    id: string,
+    hostname: string,
+    username: string,
+    password: string
+  ): Promise<APICustomerAccount>;
+  public async getCustomerByAccountId(
+    id: string,
+    hostname?: string,
+    username?: string,
+    password?: string
+  ): Promise<APICustomerAccount> {
+    return await this._plugin.emitEventAndReturn(
+      "getCustomerByAccountId",
+      id,
+      hostname,
+      username,
+      password
+    );
+  }
+
+  public async getSubAccountsByAccountId(id: string): Promise<Array<APICustomerSpecific>>;
+  public async getSubAccountsByAccountId(
+    id: string,
+    hostname: string,
+    username: string,
+    password: string
+  ): Promise<Array<APICustomerSpecific>>;
+  public async getSubAccountsByAccountId(
+    id: string,
+    hostname?: string,
+    username?: string,
+    password?: string
+  ): Promise<Array<APICustomerSpecific>> {
+    return await this._plugin.emitEventAndReturn(
+      "getSubAccountsByAccountId",
       id,
       hostname,
       username,

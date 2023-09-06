@@ -48,9 +48,19 @@ export class Service extends ServicesBase<
         await self.getCustomersByEmail(a, b as any, c as any, d as any)
     );
     await this.onReturnableEvent(
-      "getCustomerAccountById",
+      "getSubAccountById",
       async (a, b, c, d) =>
-        await self.getCustomerAccountById(a, b as any, c as any, d as any)
+        await self.getSubAccountById(a, b as any, c as any, d as any)
+    );    
+    await this.onReturnableEvent(
+      "getCustomerByAccountId",
+      async (a, b, c, d) =>
+        await self.getCustomerByAccountId(a, b as any, c as any, d as any)
+    );    
+    await this.onReturnableEvent(
+      "getSubAccountsByAccountId",
+      async (a, b, c, d) =>
+        await self.getSubAccountsByAccountId(a, b as any, c as any, d as any)
     );
   }
 
@@ -77,7 +87,7 @@ export class Service extends ServicesBase<
     const resp = await instance.post<
       APIAuthRequest,
       AxiosResponse<APIAuthResponse>
-    >('/api/auth/login', {
+    >("/api/auth/login", {
       user: username,
       password,
     });
@@ -129,14 +139,16 @@ export class Service extends ServicesBase<
     ).data;
   }
 
-  public async getCustomerAccountById(id: number): Promise<APICustomerSpecific>;
-  public async getCustomerAccountById(
+  public async getSubAccountById(
+    id: number
+  ): Promise<APICustomerSpecific>;
+  public async getSubAccountById(
     id: number,
     hostname: string,
     username: string,
     password: string
   ): Promise<APICustomerSpecific>;
-  public async getCustomerAccountById(
+  public async getSubAccountById(
     id: number,
     hostname?: string,
     username?: string,
@@ -159,19 +171,69 @@ export class Service extends ServicesBase<
       .data;
   }
 
-  /*public async getCustomerById(id: number): Promise<APICustomer>
-  public async getCustomerById(id: number, hostname: string, username: string, password: string): Promise<APICustomer>
-  public async getCustomerById(id: number, hostname?: string, username?: string, password?: string): Promise<APICustomer> {
-    throw new Error('Not implemented');
-    / *const config = await this.getPluginConfig();
+  public async getCustomerByAccountId(id: string): Promise<APICustomerAccount>;
+  public async getCustomerByAccountId(
+    id: string,
+    hostname: string,
+    username: string,
+    password: string
+  ): Promise<APICustomerAccount>;
+  public async getCustomerByAccountId(
+    id: string,
+    hostname?: string,
+    username?: string,
+    password?: string
+  ): Promise<APICustomerAccount> {
+    const config = await this.getPluginConfig();
     let axios: Axios;
     if (Tools.isString(hostname)) {
-      if (!Tools.isString(username)) throw new Error('Invalid username');
-      if (!Tools.isString(password)) throw new Error('Invalid password');
+      if (!Tools.isString(username)) throw new Error("Invalid username");
+      if (!Tools.isString(password)) throw new Error("Invalid password");
       axios = await this.getAxios(hostname, username, password);
     } else {
-      axios = await this.getAxios(config.host, config.username, config.password);
+      axios = await this.getAxios(
+        config.host,
+        config.username,
+        config.password
+      );
     }
-    return (await axios.get<Array<APICustomer>>(`/api/portal/customer?email${encodeURIComponent(email)}`)).data;* /
-  }*/
+    return (
+      await axios.get<APICustomerAccount>(`/api/portal/customer/account/${id}`)
+    ).data;
+  }
+
+  public async getSubAccountsByAccountId(
+    id: string
+  ): Promise<Array<APICustomerSpecific>>;
+  public async getSubAccountsByAccountId(
+    id: string,
+    hostname: string,
+    username: string,
+    password: string
+  ): Promise<Array<APICustomerSpecific>>;
+  public async getSubAccountsByAccountId(
+    id: string,
+    hostname?: string,
+    username?: string,
+    password?: string
+  ): Promise<Array<APICustomerSpecific>> {
+    const config = await this.getPluginConfig();
+    let axios: Axios;
+    if (Tools.isString(hostname)) {
+      if (!Tools.isString(username)) throw new Error("Invalid username");
+      if (!Tools.isString(password)) throw new Error("Invalid password");
+      axios = await this.getAxios(hostname, username, password);
+    } else {
+      axios = await this.getAxios(
+        config.host,
+        config.username,
+        config.password
+      );
+    }
+    return (
+      await axios.get<Array<APICustomerSpecific>>(
+        `/api/portal/customer/account/${id}/detail`
+      )
+    ).data;
+  }
 }
