@@ -51,12 +51,12 @@ export class Service extends ServicesBase<
       "getSubAccountById",
       async (a, b, c, d) =>
         await self.getSubAccountById(a, b as any, c as any, d as any)
-    );    
+    );
     await this.onReturnableEvent(
       "getCustomerByAccountId",
       async (a, b, c, d) =>
         await self.getCustomerByAccountId(a, b as any, c as any, d as any)
-    );    
+    );
     await this.onReturnableEvent(
       "getSubAccountsByAccountId",
       async (a, b, c, d) =>
@@ -141,19 +141,19 @@ export class Service extends ServicesBase<
 
   public async getSubAccountById(
     id: number
-  ): Promise<APICustomerSpecific>;
+  ): Promise<APICustomerSpecific | null>;
   public async getSubAccountById(
     id: number,
     hostname: string,
     username: string,
     password: string
-  ): Promise<APICustomerSpecific>;
+  ): Promise<APICustomerSpecific | null>;
   public async getSubAccountById(
     id: number,
     hostname?: string,
     username?: string,
     password?: string
-  ): Promise<APICustomerSpecific> {
+  ): Promise<APICustomerSpecific | null> {
     const config = await this.getPluginConfig();
     let axios: Axios;
     if (Tools.isString(hostname)) {
@@ -167,23 +167,29 @@ export class Service extends ServicesBase<
         config.password
       );
     }
-    return (await axios.get<APICustomerSpecific>(`/api/portal/customer/${id}`))
-      .data;
+    const resp = await axios.get<APICustomerSpecific>(
+      `/api/portal/customer/${id}`
+    );
+    if (resp.status == 404) return null;
+    if (resp.status == 200) return resp.data;
+    throw new Error(`Error ${resp.status}: ${resp.statusText} [${resp.data}]`);
   }
 
-  public async getCustomerByAccountId(id: string): Promise<APICustomerAccount>;
+  public async getCustomerByAccountId(
+    id: string
+  ): Promise<APICustomerAccount | null>;
   public async getCustomerByAccountId(
     id: string,
     hostname: string,
     username: string,
     password: string
-  ): Promise<APICustomerAccount>;
+  ): Promise<APICustomerAccount | null>;
   public async getCustomerByAccountId(
     id: string,
     hostname?: string,
     username?: string,
     password?: string
-  ): Promise<APICustomerAccount> {
+  ): Promise<APICustomerAccount | null> {
     const config = await this.getPluginConfig();
     let axios: Axios;
     if (Tools.isString(hostname)) {
@@ -197,9 +203,12 @@ export class Service extends ServicesBase<
         config.password
       );
     }
-    return (
-      await axios.get<APICustomerAccount>(`/api/portal/customer/account/${id}`)
-    ).data;
+    const resp = await axios.get<APICustomerAccount>(
+      `/api/portal/customer/account/${id}`
+    );
+    if (resp.status == 200 && resp.data.account !== null) return resp.data;
+    if (resp.status == 200 && resp.data.account === null) return null;
+    throw new Error(`Error ${resp.status}: ${resp.statusText} [${resp.data}]`);
   }
 
   public async getSubAccountsByAccountId(

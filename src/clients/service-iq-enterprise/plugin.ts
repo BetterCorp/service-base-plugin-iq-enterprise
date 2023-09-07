@@ -48,19 +48,19 @@ export class IQEnterpriseClient extends ServicesClient<
     );
   }
 
-  public async getSubAccountById(id: number): Promise<APICustomerSpecific>;
+  public async getSubAccountById(id: number): Promise<APICustomerSpecific | null>;
   public async getSubAccountById(
     id: number,
     hostname: string,
     username: string,
     password: string
-  ): Promise<APICustomerSpecific>;
+  ): Promise<APICustomerSpecific | null>;
   public async getSubAccountById(
     id: number,
     hostname?: string,
     username?: string,
     password?: string
-  ): Promise<APICustomerSpecific> {
+  ): Promise<APICustomerSpecific | null> {
     return await this._plugin.emitEventAndReturn(
       "getSubAccountById",
       id,
@@ -70,19 +70,19 @@ export class IQEnterpriseClient extends ServicesClient<
     );
   }
 
-  public async getCustomerByAccountId(id: string): Promise<APICustomerAccount>;
+  public async getCustomerByAccountId(id: string): Promise<APICustomerAccount | null>;
   public async getCustomerByAccountId(
     id: string,
     hostname: string,
     username: string,
     password: string
-  ): Promise<APICustomerAccount>;
+  ): Promise<APICustomerAccount | null>;
   public async getCustomerByAccountId(
     id: string,
     hostname?: string,
     username?: string,
     password?: string
-  ): Promise<APICustomerAccount> {
+  ): Promise<APICustomerAccount | null> {
     return await this._plugin.emitEventAndReturn(
       "getCustomerByAccountId",
       id,

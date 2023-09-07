@@ -92,13 +92,13 @@ export interface IEmitAndReturn {
     hostname?: string,
     username?: string,
     password?: string
-  ): Promise<APICustomerSpecific>; 
+  ): Promise<APICustomerSpecific | null>; 
   getCustomerByAccountId(
     id: string,
     hostname?: string,
     username?: string,
     password?: string
-  ): Promise<APICustomerAccount>;
+  ): Promise<APICustomerAccount | null>;
   getSubAccountsByAccountId(
     id: string,
     hostname?: string,
