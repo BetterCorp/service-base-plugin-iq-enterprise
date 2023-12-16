@@ -5,7 +5,7 @@
     "url": "https://github.com/BetterCorp/service-base-plugin-iq-enterprise"
   },
   "scripts": {
-    "build": "npm run build-plugin && npm run build-clients",
+    "build": "npm run build-plugin",
     "build-plugin": "rm -rfv ./lib && tsc",
     "build-clients": "node node_modules/@bettercorp/service-base/build-lib-clients.js",
     "dev": "nodemon --config node_modules/@bettercorp/service-base/development/nodemon.json",
@@ -18,7 +18,7 @@
     "lib/**/*"
   ],
   "main": "lib/index.js",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "bsb_project": true,
   "devDependencies": {
     "@types/assert": "^1.5.6",
@@ -37,8 +37,7 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
-    "@bettercorp/service-base": "^8.5.0",
-    "@bettercorp/service-base-plugin-web-server": "^6.5.6",
+    "@bettercorp/service-base": "^9.0.2-beta",
     "@bettercorp/tools": "^2.1.30",
     "@types/uuid": "^9.0.2",
     "axios": "^1.4.0"

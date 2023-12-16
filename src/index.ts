@@ -46,10 +46,15 @@ export interface APICustomerSpecific {
   idcustomer: number;
   account: string;
   description: string;
-  package: string;
+  aka: string;
+  package: {
+    id: number;
+    groupid: number;
+  };
   value: string;
   speed: string;
   status: string;
+  branch: string;
   contact: string;
   telephone: string;
   cell_numbers: APICustomerSpecificCellNumber[];
@@ -78,31 +83,4 @@ export interface APIAuthResponse {
 export interface APIAuthRequest {
   username: string;
   password: string;
-}
-
-export interface IEmitAndReturn {
-  getCustomersByEmail(
-    email: string,
-    hostname?: string,
-    username?: string,
-    password?: string
-  ): Promise<Array<APICustomerAccount>>;
-  getSubAccountById(
-    id: number,
-    hostname?: string,
-    username?: string,
-    password?: string
-  ): Promise<APICustomerSpecific | null>; 
-  getCustomerByAccountId(
-    id: string,
-    hostname?: string,
-    username?: string,
-    password?: string
-  ): Promise<APICustomerAccount | null>;
-  getSubAccountsByAccountId(
-    id: string,
-    hostname?: string,
-    username?: string,
-    password?: string
-  ): Promise<Array<APICustomerSpecific>>;
 }

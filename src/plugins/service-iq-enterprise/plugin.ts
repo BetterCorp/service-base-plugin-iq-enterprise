@@ -1,19 +1,163 @@
 import {
-  ServicesBase,
-  ServiceCallable,
-  IPluginLogger,
+  BSBService,
+  BSBServiceConstructor,
+  BSBServiceTypes,
+  ServiceEventsBase,
 } from "@bettercorp/service-base";
 import {
   APIAuthRequest,
   APIAuthResponse,
   APICustomerAccount,
   APICustomerSpecific,
-  IEmitAndReturn,
 } from "../../index";
 import { Axios, AxiosResponse } from "axios";
-import { PluginConfig } from "./sec.config";
+import { Config } from "./sec-config";
 import { Tools } from "@bettercorp/tools";
 import axios from "axios";
+
+export const CoverageServiceTypes = {
+  trufibre: "trufibre",
+  skyfibre: "skyfibre",
+  wireless: "wireless",
+  none: "none",
+};
+export type CoverageService =
+  (typeof CoverageServiceTypes)[keyof typeof CoverageServiceTypes];
+
+export interface ServiceTypes extends BSBServiceTypes {
+  onEvents: ServiceEventsBase;
+  emitEvents: ServiceEventsBase;
+  onReturnableEvents: ServiceEventsBase;
+  emitReturnableEvents: {
+    getCustomersByEmail(
+      email: string,
+      hostname?: string,
+      username?: string,
+      password?: string
+    ): Promise<Array<APICustomerAccount>>;
+    getCustomerByAccountId(
+      id: string,
+      hostname?: string,
+      username?: string,
+      password?: string
+    ): Promise<APICustomerAccount | null>;
+    getSubAccountById(
+      id: number,
+      hostname?: string,
+      username?: string,
+      password?: string
+    ): Promise<APICustomerSpecific | null>;
+    getCustomerByAccountId(
+      id: string,
+      hostname?: string,
+      username?: string,
+      password?: string
+    ): Promise<APICustomerAccount | null>;
+    getSubAccountsByAccountId(
+      id: string,
+      hostname?: string,
+      username?: string,
+      password?: string
+    ): Promise<Array<APICustomerSpecific>>;
+    coverageLookup(
+      lat: number,
+      lng: number,
+      hostname?: string,
+      username?: string,
+      password?: string
+    ): Promise<CoverageService>;
+    getServices(
+      service?: CoverageService,
+      hostname?: string,
+      username?: string,
+      password?: string
+    ): Promise<Array<APIServicesResponse>>;
+    getServicesInGroup(
+      id: number,
+      hostname?: string,
+      username?: string,
+      password?: string
+    ): Promise<APIServicesResponse>;
+    getServiceById(
+      id: number,
+      hostname?: string,
+      username?: string,
+      password?: string
+    ): Promise<APIServicesResponsePackage>;
+    createNewApplication(
+      data: NewAPIApplication,
+      hostname?: string,
+      username?: string,
+      password?: string
+    ): Promise<number>;
+    getServiceUsageByAccount(
+      id: string,
+      month: number,
+      year: number,
+      day?: number,
+      hostname?: string,
+      username?: string,
+      password?: string
+    ): Promise<APIServiceUsageResponse>;
+  };
+  onBroadcast: ServiceEventsBase;
+  emitBroadcast: ServiceEventsBase;
+  methods: ServiceEventsBase;
+}
+
+export interface ServiceUsageData {
+  timeSlot: number;
+  downloadKBytes: number;
+  uploadKBytes: number;
+}
+
+export interface APIServiceUsageResponse {
+  data: ServiceUsageData[];
+  tKBDownload: number;
+  tKBUpload: number;
+  tKBCombined: number;
+}
+
+export interface NewAPIApplication {
+  description: string;
+  tel: string;
+  vatnr: string;
+  address1: string;
+  address2: string;
+  atown: string;
+  acode: string;
+  postal1: string;
+  postal2: string;
+  ptown: string;
+  pcode: string;
+  contact: string;
+  cell1: string;
+  email1: string;
+  cell2: string;
+  email2: string;
+  id: string;
+  package: string;
+  bank: string;
+  bcode: string;
+  baccount: string;
+  btype: string;
+}
+
+export interface APIServicesResponse {
+  idgroup: string;
+  description: string;
+  packages: APIServicesResponsePackage[];
+}
+
+export interface APIServicesResponsePackage {
+  idpackage: number;
+  package: string;
+  webdescription: string;
+  cost: number;
+  download: number;
+  upload: number;
+  approve: boolean;
+}
 
 export interface AxiosInstance {
   hostname: string;
@@ -21,50 +165,280 @@ export interface AxiosInstance {
   instance: Axios;
   exp: number;
 }
-export class Service extends ServicesBase<
-  ServiceCallable,
-  ServiceCallable,
-  IEmitAndReturn,
-  ServiceCallable,
-  ServiceCallable,
-  PluginConfig
-> {
+export class Plugin extends BSBService<Config, ServiceTypes> {
+  initBeforePlugins?: string[] | undefined;
+  initAfterPlugins?: string[] | undefined;
+  runBeforePlugins?: string[] | undefined;
+  runAfterPlugins?: string[] | undefined;
+  methods = {};
+  dispose?(): void;
+  run?(): void | Promise<void> {
+    throw new Error("Method not implemented.");
+  }
   //private fastify: fastify;
   private _axios: Array<AxiosInstance> = [];
-  constructor(
-    pluginName: string,
-    cwd: string,
-    pluginCwd: string,
-    log: IPluginLogger
-  ) {
-    super(pluginName, cwd, pluginCwd, log);
+  constructor(config: BSBServiceConstructor) {
+    super(config);
   }
 
-  public override async init(): Promise<void> {
-    const self = this;
-    await this.onReturnableEvent(
+  public async init(): Promise<void> {
+    await this.events.onReturnableEvent(
       "getCustomersByEmail",
-      async (a, b, c, d) =>
-        await self.getCustomersByEmail(a, b as any, c as any, d as any)
+      async (
+        email: string,
+        hostname?: string,
+        username?: string,
+        password?: string
+      ) => {
+        const axios: Axios = await this.getAxios(hostname, username, password);
+        return (
+          await axios.get<Array<APICustomerAccount>>(
+            `/api/portal/customer?email=${encodeURIComponent(email)}`
+          )
+        ).data;
+      }
     );
-    await this.onReturnableEvent(
-      "getSubAccountById",
-      async (a, b, c, d) =>
-        await self.getSubAccountById(a, b as any, c as any, d as any)
-    );
-    await this.onReturnableEvent(
+    await this.events.onReturnableEvent(
       "getCustomerByAccountId",
-      async (a, b, c, d) =>
-        await self.getCustomerByAccountId(a, b as any, c as any, d as any)
+      async (
+        id: string,
+        hostname?: string,
+        username?: string,
+        password?: string
+      ) => {
+        const axios: Axios = await this.getAxios(hostname, username, password);
+        return (
+          await axios.get<APICustomerAccount>(
+            `/api/portal/customer/account/${encodeURIComponent(id)}`
+          )
+        ).data;
+      }
     );
-    await this.onReturnableEvent(
+    await this.events.onReturnableEvent(
+      "getSubAccountById",
+      async (
+        id: number,
+        hostname?: string,
+        username?: string,
+        password?: string
+      ) => {
+        const axios: Axios = await this.getAxios(hostname, username, password);
+        const resp = await axios.get<APICustomerSpecific>(
+          `/api/portal/customer/${id}`
+        );
+        if (resp.status == 404) return null;
+        if (resp.status == 200) return resp.data;
+        throw new Error(
+          `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
+        );
+      }
+    );
+    await this.events.onReturnableEvent(
+      "getCustomerByAccountId",
+      async (
+        id: string,
+        hostname?: string,
+        username?: string,
+        password?: string
+      ) => {
+        const axios: Axios = await this.getAxios(hostname, username, password);
+        const resp = await axios.get<APICustomerAccount>(
+          `/api/portal/customer/account/${id}`
+        );
+        if (resp.status == 200 && resp.data.account !== null) return resp.data;
+        if (resp.status == 200 && resp.data.account === null) return null;
+        throw new Error(
+          `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
+        );
+      }
+    );
+    await this.events.onReturnableEvent(
       "getSubAccountsByAccountId",
-      async (a, b, c, d) =>
-        await self.getSubAccountsByAccountId(a, b as any, c as any, d as any)
+      async (
+        id: string,
+        hostname?: string,
+        username?: string,
+        password?: string
+      ) => {
+        const axios: Axios = await this.getAxios(hostname, username, password);
+        const resp = await axios.get<APICustomerAccount>(
+          `/api/portal/customer/account/${id}/detail`
+        );
+        if (resp.status == 200 && resp.data.account !== null) return resp.data;
+        if (resp.status == 200 && resp.data.account === null) return null;
+        throw new Error(
+          `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
+        );
+      }
+    );
+    await this.events.onReturnableEvent(
+      "coverageLookup",
+      async (
+        lat: number,
+        lng: number,
+        hostname?: string,
+        username?: string,
+        password?: string
+      ) => {
+        const axios: Axios = await this.getAxios(hostname, username, password);
+        const resp = await axios.get<{
+          result: string;
+        }>(
+          `/api/portal/coverage/coords?longitude=${encodeURIComponent(
+            lng
+          )}&latitude=${encodeURIComponent(lat)}`
+        );
+        if (resp.status == 200 && Tools.isString(resp.data.result)) {
+          const result = resp.data.result.toLowerCase();
+          if (Object.keys(CoverageServiceTypes).indexOf(result) !== -1) {
+            return result as CoverageService;
+          }
+        }
+        throw new Error(
+          `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
+        );
+      }
+    );
+    await this.events.onReturnableEvent(
+      "getServices",
+      async (
+        service?: CoverageService,
+        hostname?: string,
+        username?: string,
+        password?: string
+      ) => {
+        const axios: Axios = await this.getAxios(hostname, username, password);
+        const resp = await axios.get<Array<APIServicesResponse>>(
+          `/api/portal/services${encodeURIComponent(service ?? "")}`
+        );
+        if (resp.status == 200) {
+          return resp.data;
+        }
+        throw new Error(
+          `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
+        );
+      }
+    );
+    await this.events.onReturnableEvent(
+      "getServicesInGroup",
+      async (
+        id: number,
+        hostname?: string,
+        username?: string,
+        password?: string
+      ) => {
+        const axios: Axios = await this.getAxios(hostname, username, password);
+        const resp = await axios.get<APIServicesResponse>(
+          `/api/portal/services/group/${encodeURIComponent(id)}`
+        );
+        if (resp.status == 200) {
+          return resp.data;
+        }
+        throw new Error(
+          `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
+        );
+      }
+    );
+    await this.events.onReturnableEvent(
+      "getServiceById",
+      async (
+        id: number,
+        hostname?: string,
+        username?: string,
+        password?: string
+      ) => {
+        const axios: Axios = await this.getAxios(hostname, username, password);
+        const resp = await axios.get<APIServicesResponsePackage>(
+          `/api/portal/services/package/${encodeURIComponent(id)}`
+        );
+        if (resp.status == 200) {
+          return resp.data;
+        }
+        throw new Error(
+          `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
+        );
+      }
+    );
+    await this.events.onReturnableEvent(
+      "createNewApplication",
+      async (
+        data: NewAPIApplication,
+        hostname?: string,
+        username?: string,
+        password?: string
+      ) => {
+        const axios: Axios = await this.getAxios(hostname, username, password);
+        const resp = await axios.post<{
+          message: string; // "Applcation Created: id=26026"
+        }>(`/api/application`, data);
+        if (resp.status == 200) {
+          const match = resp.data.message.match(/id=(\d+)/);
+          if (match !== null) {
+            return parseInt(match[1]);
+          }
+        }
+        throw new Error(
+          `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
+        );
+      }
+    );
+    await this.events.onReturnableEvent(
+      "getServiceUsageByAccount",
+      async (
+        id: string,
+        month: number,
+        year: number,
+        day?: number,
+        hostname?: string,
+        username?: string,
+        password?: string
+      ) => {
+        const axios: Axios = await this.getAxios(hostname, username, password);
+        let resp: AxiosResponse<APIServiceUsageResponse>;
+        if (Tools.isNumber(day)) {
+          resp = await axios.get<APIServiceUsageResponse>(
+            `/api/portal/usage/${encodeURIComponent(
+              id
+            )}?month=${encodeURIComponent(year)}${encodeURIComponent(
+              month
+            )}&day=${encodeURIComponent(day)}`
+          );
+        } else {
+          resp = await axios.get<APIServiceUsageResponse>(
+            `/api/portal/usage/${encodeURIComponent(
+              id
+            )}?month=${encodeURIComponent(year)}${encodeURIComponent(month)}`
+          );
+        }
+        if (resp.status == 200) {
+          return resp.data;
+        }
+        throw new Error(
+          `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
+        );
+      }
     );
   }
 
   private async getAxios(
+    hostname?: string,
+    username?: string,
+    password?: string
+  ): Promise<Axios> {
+    if (Tools.isString(hostname)) {
+      if (!Tools.isString(username)) throw new Error("Invalid username");
+      if (!Tools.isString(password)) throw new Error("Invalid password");
+      return await this.getAxiosInstance(hostname, username, password);
+    } else {
+      return await this.getAxiosInstance(
+        this.config.host,
+        this.config.username,
+        this.config.password
+      );
+    }
+  }
+
+  private async getAxiosInstance(
     hostname: string,
     username: string,
     password: string
@@ -102,147 +476,5 @@ export class Service extends ServicesBase<
       exp: new Date().getTime() + 5 * 60 * 1000,
     });
     return instance;
-  }
-
-  public async getCustomersByEmail(
-    email: string
-  ): Promise<Array<APICustomerAccount>>;
-  public async getCustomersByEmail(
-    email: string,
-    hostname: string,
-    username: string,
-    password: string
-  ): Promise<Array<APICustomerAccount>>;
-  public async getCustomersByEmail(
-    email: string,
-    hostname?: string,
-    username?: string,
-    password?: string
-  ): Promise<Array<APICustomerAccount>> {
-    const config = await this.getPluginConfig();
-    let axios: Axios;
-    if (Tools.isString(hostname)) {
-      if (!Tools.isString(username)) throw new Error("Invalid username");
-      if (!Tools.isString(password)) throw new Error("Invalid password");
-      axios = await this.getAxios(hostname, username, password);
-    } else {
-      axios = await this.getAxios(
-        config.host,
-        config.username,
-        config.password
-      );
-    }
-    return (
-      await axios.get<Array<APICustomerAccount>>(
-        `/api/portal/customer?email=${encodeURIComponent(email)}`
-      )
-    ).data;
-  }
-
-  public async getSubAccountById(
-    id: number
-  ): Promise<APICustomerSpecific | null>;
-  public async getSubAccountById(
-    id: number,
-    hostname: string,
-    username: string,
-    password: string
-  ): Promise<APICustomerSpecific | null>;
-  public async getSubAccountById(
-    id: number,
-    hostname?: string,
-    username?: string,
-    password?: string
-  ): Promise<APICustomerSpecific | null> {
-    const config = await this.getPluginConfig();
-    let axios: Axios;
-    if (Tools.isString(hostname)) {
-      if (!Tools.isString(username)) throw new Error("Invalid username");
-      if (!Tools.isString(password)) throw new Error("Invalid password");
-      axios = await this.getAxios(hostname, username, password);
-    } else {
-      axios = await this.getAxios(
-        config.host,
-        config.username,
-        config.password
-      );
-    }
-    const resp = await axios.get<APICustomerSpecific>(
-      `/api/portal/customer/${id}`
-    );
-    if (resp.status == 404) return null;
-    if (resp.status == 200) return resp.data;
-    throw new Error(`Error ${resp.status}: ${resp.statusText} [${resp.data}]`);
-  }
-
-  public async getCustomerByAccountId(
-    id: string
-  ): Promise<APICustomerAccount | null>;
-  public async getCustomerByAccountId(
-    id: string,
-    hostname: string,
-    username: string,
-    password: string
-  ): Promise<APICustomerAccount | null>;
-  public async getCustomerByAccountId(
-    id: string,
-    hostname?: string,
-    username?: string,
-    password?: string
-  ): Promise<APICustomerAccount | null> {
-    const config = await this.getPluginConfig();
-    let axios: Axios;
-    if (Tools.isString(hostname)) {
-      if (!Tools.isString(username)) throw new Error("Invalid username");
-      if (!Tools.isString(password)) throw new Error("Invalid password");
-      axios = await this.getAxios(hostname, username, password);
-    } else {
-      axios = await this.getAxios(
-        config.host,
-        config.username,
-        config.password
-      );
-    }
-    const resp = await axios.get<APICustomerAccount>(
-      `/api/portal/customer/account/${id}`
-    );
-    if (resp.status == 200 && resp.data.account !== null) return resp.data;
-    if (resp.status == 200 && resp.data.account === null) return null;
-    throw new Error(`Error ${resp.status}: ${resp.statusText} [${resp.data}]`);
-  }
-
-  public async getSubAccountsByAccountId(
-    id: string
-  ): Promise<Array<APICustomerSpecific>>;
-  public async getSubAccountsByAccountId(
-    id: string,
-    hostname: string,
-    username: string,
-    password: string
-  ): Promise<Array<APICustomerSpecific>>;
-  public async getSubAccountsByAccountId(
-    id: string,
-    hostname?: string,
-    username?: string,
-    password?: string
-  ): Promise<Array<APICustomerSpecific>> {
-    const config = await this.getPluginConfig();
-    let axios: Axios;
-    if (Tools.isString(hostname)) {
-      if (!Tools.isString(username)) throw new Error("Invalid username");
-      if (!Tools.isString(password)) throw new Error("Invalid password");
-      axios = await this.getAxios(hostname, username, password);
-    } else {
-      axios = await this.getAxios(
-        config.host,
-        config.username,
-        config.password
-      );
-    }
-    return (
-      await axios.get<Array<APICustomerSpecific>>(
-        `/api/portal/customer/account/${id}/detail`
-      )
-    ).data;
   }
 }
