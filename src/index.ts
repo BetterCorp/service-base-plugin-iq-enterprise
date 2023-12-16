@@ -1,31 +1,58 @@
 export { IQEnterpriseClient } from "./clients/service-iq-enterprise/plugin";
 
-/*
-// tslint:disable-next-line: max-line-length
-export function webRequest(server: IServerConfig, basePath: string, path: string, method: string, params: Object | undefined = undefined, data: Object | undefined = undefined, additionalProps: Object | undefined = undefined) {
-  return new Promise(async (resolve, reject) => {
-    let newParams: Object = {};
-    if (params !== undefined && params !== null) {
-      newParams = params;
-    }
+export interface ServiceUsageData {
+  timeSlot: number;
+  downloadKBytes: number;
+  uploadKBytes: number;
+}
 
-    const url = `${ server.hostname }${ basePath }${ path }`;
-    AXIOS({
-      //timeout: 5000,
-      url,
-      params: newParams,
-      method,
-      data,
-      headers: {
-        'X-Auth-App-Key': server.key,
-      },
-      ...(additionalProps || {})
-    }).then((x: any) => additionalProps !== undefined ? resolve(x) : resolve(x.data)).catch((e: any) => {
-      console.error(e);
-      reject(e);
-    });
-  });
-}*/
+export interface APIServiceUsageResponse {
+  data: ServiceUsageData[];
+  tKBDownload: number;
+  tKBUpload: number;
+  tKBCombined: number;
+}
+
+export interface NewAPIApplication {
+  description: string;
+  tel: string;
+  vatnr: string;
+  address1: string;
+  address2: string;
+  atown: string;
+  acode: string;
+  postal1: string;
+  postal2: string;
+  ptown: string;
+  pcode: string;
+  contact: string;
+  cell1: string;
+  email1: string;
+  cell2: string;
+  email2: string;
+  id: string;
+  package: string;
+  bank: string;
+  bcode: string;
+  baccount: string;
+  btype: string;
+}
+
+export interface APIServicesResponse {
+  idgroup: string;
+  description: string;
+  packages: APIServicesResponsePackage[];
+}
+
+export interface APIServicesResponsePackage {
+  idpackage: number;
+  package: string;
+  webdescription: string;
+  cost: number;
+  download: number;
+  upload: number;
+  approve: boolean;
+}
 
 export interface APICustomerAccount {
   account: string;

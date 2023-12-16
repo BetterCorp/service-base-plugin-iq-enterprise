@@ -9,6 +9,10 @@ import {
   APIAuthResponse,
   APICustomerAccount,
   APICustomerSpecific,
+  APIServiceUsageResponse,
+  APIServicesResponse,
+  APIServicesResponsePackage,
+  NewAPIApplication,
 } from "../../index";
 import { Axios, AxiosResponse } from "axios";
 import { Config } from "./sec-config";
@@ -103,60 +107,6 @@ export interface ServiceTypes extends BSBServiceTypes {
   onBroadcast: ServiceEventsBase;
   emitBroadcast: ServiceEventsBase;
   methods: ServiceEventsBase;
-}
-
-export interface ServiceUsageData {
-  timeSlot: number;
-  downloadKBytes: number;
-  uploadKBytes: number;
-}
-
-export interface APIServiceUsageResponse {
-  data: ServiceUsageData[];
-  tKBDownload: number;
-  tKBUpload: number;
-  tKBCombined: number;
-}
-
-export interface NewAPIApplication {
-  description: string;
-  tel: string;
-  vatnr: string;
-  address1: string;
-  address2: string;
-  atown: string;
-  acode: string;
-  postal1: string;
-  postal2: string;
-  ptown: string;
-  pcode: string;
-  contact: string;
-  cell1: string;
-  email1: string;
-  cell2: string;
-  email2: string;
-  id: string;
-  package: string;
-  bank: string;
-  bcode: string;
-  baccount: string;
-  btype: string;
-}
-
-export interface APIServicesResponse {
-  idgroup: string;
-  description: string;
-  packages: APIServicesResponsePackage[];
-}
-
-export interface APIServicesResponsePackage {
-  idpackage: number;
-  package: string;
-  webdescription: string;
-  cost: number;
-  download: number;
-  upload: number;
-  approve: boolean;
 }
 
 export interface AxiosInstance {
