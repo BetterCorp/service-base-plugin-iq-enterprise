@@ -1,4 +1,5 @@
 import {
+  BSBError,
   BSBService,
   BSBServiceConstructor,
   BSBServiceTypes,
@@ -379,13 +380,15 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       if (!Tools.isString(username)) throw new Error("Invalid username");
       if (!Tools.isString(password)) throw new Error("Invalid password");
       return await this.getAxiosInstance(hostname, username, password);
-    } else {
-      return await this.getAxiosInstance(
-        this.config.host,
-        this.config.username,
-        this.config.password
-      );
     }
+    if (Tools.isNullOrUndefined(this.config))
+      throw new BSBError("Invalid config", {});
+
+    return await this.getAxiosInstance(
+      this.config.host,
+      this.config.username,
+      this.config.password
+    );
   }
 
   private async getAxiosInstance(
