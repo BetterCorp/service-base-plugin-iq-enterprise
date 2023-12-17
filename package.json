@@ -37,7 +37,7 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
-    "@bettercorp/service-base": "^9.0.2-beta",
+    "@bettercorp/service-base": "^9.0.4-beta",
     "@bettercorp/tools": "^2.1.30",
     "@types/uuid": "^9.0.2",
     "axios": "^1.4.0"
