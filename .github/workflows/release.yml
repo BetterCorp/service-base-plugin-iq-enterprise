@@ -12,8 +12,8 @@ on:
 
 jobs:
   build-plugin:
-    uses: BetterCorp/service-base-build-workflows/node.yml@master
+    uses: BetterCorp/service-base-build-workflows/.github/workflows/node.yml@master
     with:
-      PUBLISH: YES
+      PUBLISH: true
     secrets:
       NPM_TOKEN_PUB: ${{ secrets.NPM2_TOKEN_PUB }}

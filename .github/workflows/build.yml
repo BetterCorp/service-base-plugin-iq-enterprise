@@ -5,6 +5,6 @@ on:
 
 jobs:
   build-plugin:
-    uses: BetterCorp/service-base-build-workflows/node.yml@master
+    uses: BetterCorp/service-base-build-workflows/.github/workflows/node.yml@master
     with:
-      PUBLISH: NO
+      PUBLISH: false
