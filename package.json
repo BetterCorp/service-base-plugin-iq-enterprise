@@ -2,7 +2,7 @@
   "name": "@bettercorp/service-base-plugin-iq-enterprise",
   "license": "AGPL-3.0-only",
   "repository": {
-    "url": "https://github.com/BetterCorp/service-base-plugin-iq-enterprise"
+    "url": "git+https://github.com/BetterCorp/service-base-plugin-iq-enterprise.git"
   },
   "scripts": {
     "build": "npm run build-plugin",
