@@ -52,12 +52,6 @@ export interface ServiceTypes extends BSBServiceTypes {
       username?: string,
       password?: string
     ): Promise<APICustomerSpecific | null>;
-    getCustomerByAccountId(
-      id: string,
-      hostname?: string,
-      username?: string,
-      password?: string
-    ): Promise<APICustomerAccount | null>;
     getSubAccountsByAccountId(
       id: string,
       hostname?: string,
@@ -148,22 +142,6 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       }
     );
     await this.events.onReturnableEvent(
-      "getCustomerByAccountId",
-      async (
-        id: string,
-        hostname?: string,
-        username?: string,
-        password?: string
-      ) => {
-        const axios: Axios = await this.getAxios(hostname, username, password);
-        return (
-          await axios.get<APICustomerAccount>(
-            `/api/portal/customer/account/${encodeURIComponent(id)}`
-          )
-        ).data;
-      }
-    );
-    await this.events.onReturnableEvent(
       "getSubAccountById",
       async (
         id: number,
@@ -192,7 +170,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       ) => {
         const axios: Axios = await this.getAxios(hostname, username, password);
         const resp = await axios.get<APICustomerAccount>(
-          `/api/portal/customer/account/${id}`
+          `/api/portal/customer/account/${encodeURIComponent(id)}`
         );
         if (resp.status == 200 && resp.data.account !== null) return resp.data;
         if (resp.status == 200 && resp.data.account === null) return null;
