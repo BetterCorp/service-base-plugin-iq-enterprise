@@ -11,7 +11,7 @@ on:
       - "**"
 
 jobs:
-  build-plugin:
+  build-plugin-release:
     uses: BetterCorp/service-base-build-workflows/.github/workflows/node.yml@master
     with:
       PUBLISH: true
