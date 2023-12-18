@@ -17,6 +17,6 @@ jobs:
       PUBLISH: true
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      NPM_TOKEN_PUB: ${{ secrets.NPM2_TOKEN_PUB }}
+      NPM_PUBLISH_TOKEN: ${{ secrets.NPM2_TOKEN_PUB }}
       NPM_EMAIL: ${{ secrets.NPM_EMAIL }}
       NPM_NAME: ${{ secrets.NPM_NAME }}
