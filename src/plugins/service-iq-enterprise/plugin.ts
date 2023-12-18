@@ -123,9 +123,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
   runAfterPlugins?: string[] | undefined;
   methods = {};
   dispose?(): void;
-  run?(): void | Promise<void> {
-    throw new Error("Method not implemented.");
-  }
+  run?(): void | Promise<void>;
   //private fastify: fastify;
   private _axios: Array<AxiosInstance> = [];
   constructor(config: BSBServiceConstructor) {
