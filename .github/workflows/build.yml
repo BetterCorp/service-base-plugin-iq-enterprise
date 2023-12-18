@@ -8,5 +8,3 @@ jobs:
     uses: BetterCorp/service-base-build-workflows/.github/workflows/node.yml@master
     with:
       PUBLISH: false
-      NPM_EMAIL: ${{ secrets.NPM_EMAIL }}
-      NPM_NAME: ${{ secrets.NPM_NAME }}

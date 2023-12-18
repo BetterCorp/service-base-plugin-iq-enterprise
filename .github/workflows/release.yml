@@ -15,7 +15,7 @@ jobs:
     uses: BetterCorp/service-base-build-workflows/.github/workflows/node.yml@master
     with:
       PUBLISH: true
-      NPM_EMAIL: ${{ secrets.NPM_EMAIL }}
-      NPM_NAME: ${{ secrets.NPM_NAME }}
     secrets:
       NPM_TOKEN_PUB: ${{ secrets.NPM2_TOKEN_PUB }}
+      NPM_EMAIL: ${{ secrets.NPM_EMAIL }}
+      NPM_NAME: ${{ secrets.NPM_NAME }}
