@@ -1,4 +1,4 @@
-export { IQEnterpriseClient } from "./clients/service-iq-enterprise/plugin";
+export { IQEnterprise } from "./clients/service-iq-enterprise/plugin";
 
 export interface ServiceUsageData {
   timeSlot: number;

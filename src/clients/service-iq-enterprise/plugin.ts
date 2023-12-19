@@ -1,8 +1,18 @@
 import { BSBService, BSBServiceClient } from "@bettercorp/service-base";
-import { APICustomerAccount, APICustomerSpecific } from "../../index";
-import { ServiceTypes } from "../../plugins/service-iq-enterprise/plugin";
+import {
+  APICustomerAccount,
+  APICustomerSpecific,
+  APIServiceUsageResponse,
+  APIServicesResponse,
+  APIServicesResponsePackage,
+  NewAPIApplication,
+} from "../../index";
+import {
+  CoverageService,
+  ServiceTypes,
+} from "../../plugins/service-iq-enterprise/plugin";
 
-export class IQEnterpriseClient extends BSBServiceClient<ServiceTypes> {
+export class IQEnterprise extends BSBServiceClient<ServiceTypes> {
   public readonly pluginName = "service-iq-enterprise";
   public readonly initBeforePlugins?: string[] | undefined;
   public readonly initAfterPlugins?: string[] | undefined;
@@ -109,6 +119,104 @@ export class IQEnterpriseClient extends BSBServiceClient<ServiceTypes> {
       "getSubAccountsByAccountId",
       30,
       id,
+      hostname,
+      username,
+      password
+    );
+  }
+  public async coverageLookup(
+    lat: number,
+    lng: number,
+    hostname?: string,
+    username?: string,
+    password?: string
+  ): Promise<CoverageService> {
+    return await this.events.emitEventAndReturn(
+      "coverageLookup",
+      30,
+      lat,
+      lng,
+      hostname,
+      username,
+      password
+    );
+  }
+  public async getServices(
+    service?: CoverageService,
+    hostname?: string,
+    username?: string,
+    password?: string
+  ): Promise<Array<APIServicesResponse>> {
+    return await this.events.emitEventAndReturn(
+      "getServices",
+      30,
+      service,
+      hostname,
+      username,
+      password
+    );
+  }
+  public async getServicesInGroup(
+    id: number,
+    hostname?: string,
+    username?: string,
+    password?: string
+  ): Promise<APIServicesResponse> {
+    return await this.events.emitEventAndReturn(
+      "getServicesInGroup",
+      30,
+      id,
+      hostname,
+      username,
+      password
+    );
+  }
+  public async getServiceById(
+    id: number,
+    hostname?: string,
+    username?: string,
+    password?: string
+  ): Promise<APIServicesResponsePackage> {
+    return await this.events.emitEventAndReturn(
+      "getServiceById",
+      30,
+      id,
+      hostname,
+      username,
+      password
+    );
+  }
+  public async createNewApplication(
+    data: NewAPIApplication,
+    hostname?: string,
+    username?: string,
+    password?: string
+  ): Promise<number> {
+    return await this.events.emitEventAndReturn(
+      "createNewApplication",
+      30,
+      data,
+      hostname,
+      username,
+      password
+    );
+  }
+  public async getServiceUsageByAccount(
+    id: string,
+    month: number,
+    year: number,
+    day?: number,
+    hostname?: string,
+    username?: string,
+    password?: string
+  ): Promise<APIServiceUsageResponse> {
+    return await this.events.emitEventAndReturn(
+      "getServiceUsageByAccount",
+      30,
+      id,
+      month,
+      year,
+      day,
       hostname,
       username,
       password
