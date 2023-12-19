@@ -236,7 +236,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       ) => {
         const axios: Axios = await this.getAxios(hostname, username, password);
         const resp = await axios.get<Array<APIServicesResponse>>(
-          `/api/portal/services${encodeURIComponent(service ?? "")}`
+          `/api/portal/services/${encodeURIComponent(service ?? "")}`
         );
         if (resp.status == 200) {
           return resp.data;
@@ -372,7 +372,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
     username: string,
     password: string
   ): Promise<Axios> {
-    const now = new Date().getTime() - 5 * 1000;
+    const now = new Date().getTime() - 30 * 1000;
     for (let i = 0; i < this._axios.length; i++) {
       if (this._axios[i].hostname !== hostname) continue;
       if (this._axios[i].username !== username) continue;
