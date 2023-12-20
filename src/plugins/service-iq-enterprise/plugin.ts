@@ -17,7 +17,7 @@ import {
 } from "../../index";
 import { Axios, AxiosResponse } from "axios";
 import { Config } from "./sec-config";
-import { Tools } from "@bettercorp/tools";
+import { Tools } from "@bettercorp/tools/lib/Tools";
 import axios from "axios";
 
 export const CoverageServiceTypes = {
