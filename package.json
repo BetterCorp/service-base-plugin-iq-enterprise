@@ -6,7 +6,6 @@
   },
   "scripts": {
     "build": "rm -rfv ./lib && tsc",
-    "build-release": "rm -rfv ./lib && tsc --p ./tsconfig-release.json",
     "dev": "nodemon --config node_modules/@bettercorp/service-base/development/nodemon.json",
     "start": "ts-node node_modules/@bettercorp/service-base/lib/cli.js",
     "lint": "eslint src/ --ext .js,.jsx,.ts,.tsx",
@@ -35,7 +34,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@bettercorp/service-base": "^8.4.40",
+    "@bettercorp/service-base": "^8.5.47",
     "@bettercorp/tools": "^3.7.0",
     "axios": "^1.6.2"
   }

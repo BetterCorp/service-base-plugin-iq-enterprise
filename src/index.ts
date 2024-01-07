@@ -1,9 +1,48 @@
-export { IQEnterprise } from "./clients/service-iq-enterprise/plugin";
+export { IQEnterprise } from "./plugins/service-iq-enterprise/client";
 
 export interface ServiceUsageData {
   timeSlot: number;
   downloadKBytes: number;
   uploadKBytes: number;
+}
+
+export const CoverageServiceTypes = {
+  trufibre: "trufibre",
+  skyfibre: "skyfibre",
+  wireless: "wireless",
+  none: "none",
+};
+export type CoverageService =
+  (typeof CoverageServiceTypes)[keyof typeof CoverageServiceTypes];
+
+export const UpgradeDowngradeInfoStatusTypes = {
+  Scheduled: "Scheduled",
+  Immediate: "Immediate",
+  Approve: "Approve",
+};
+export type UpgradeDowngradeInfoStatus =
+  (typeof UpgradeDowngradeInfoStatusTypes)[keyof typeof UpgradeDowngradeInfoStatusTypes];
+
+export const UpgradeDowngradeStatusTypes = {
+  scheduled: "scheduled",
+  immediate: "immediate",
+  approve: "approve",
+};
+export type UpgradeDowngradeStatus =
+  (typeof UpgradeDowngradeStatusTypes)[keyof typeof UpgradeDowngradeStatusTypes];
+
+export interface UpgradeDowngradeReequestInfo {
+  status: UpgradeDowngradeInfoStatus;
+  eta: string;
+}
+
+export interface UpgradeDowngradeInfo {
+  status: UpgradeDowngradeStatus;
+  eta: number | null;
+}
+export interface UpgradeDowngradeResponseInfo {
+  status: "Success" | "Failed";
+  message: string;
 }
 
 export interface APIServiceUsageResponse {

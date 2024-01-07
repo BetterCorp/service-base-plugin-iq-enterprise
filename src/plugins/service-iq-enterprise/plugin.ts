@@ -1,8 +1,9 @@
 import {
   BSBError,
+  BSBPluginConfig,
+  BSBPluginEvents,
   BSBService,
   BSBServiceConstructor,
-  BSBServiceTypes,
   ServiceEventsBase,
 } from "@bettercorp/service-base";
 import {
@@ -13,27 +14,24 @@ import {
   APIServiceUsageResponse,
   APIServicesResponse,
   APIServicesResponsePackage,
+  CoverageService,
+  CoverageServiceTypes,
   NewAPIApplication,
+  UpgradeDowngradeInfo,
+  UpgradeDowngradeReequestInfo,
+  UpgradeDowngradeResponseInfo,
+  UpgradeDowngradeStatus,
+  UpgradeDowngradeStatusTypes,
 } from "../../index";
 import { Axios, AxiosResponse } from "axios";
-import { Config } from "./sec-config";
 import { Tools } from "@bettercorp/tools/lib/Tools";
 import axios from "axios";
+import { secSchema } from "./sec-config";
 
-export const CoverageServiceTypes = {
-  trufibre: "trufibre",
-  skyfibre: "skyfibre",
-  wireless: "wireless",
-  none: "none",
-};
-export type CoverageService =
-  (typeof CoverageServiceTypes)[keyof typeof CoverageServiceTypes];
-
-export interface ServiceTypes extends BSBServiceTypes {
+export interface Events extends BSBPluginEvents {
   onEvents: ServiceEventsBase;
   emitEvents: ServiceEventsBase;
-  onReturnableEvents: ServiceEventsBase;
-  emitReturnableEvents: {
+  onReturnableEvents: {
     getCustomersByEmail(
       email: string,
       hostname?: string,
@@ -64,7 +62,7 @@ export interface ServiceTypes extends BSBServiceTypes {
       hostname?: string,
       username?: string,
       password?: string
-    ): Promise<CoverageService>;
+    ): Promise<Array<CoverageService>>;
     getServices(
       service?: CoverageService,
       hostname?: string,
@@ -98,10 +96,26 @@ export interface ServiceTypes extends BSBServiceTypes {
       username?: string,
       password?: string
     ): Promise<APIServiceUsageResponse>;
+    getUpgradeDowngradeInfo(
+      currentPackageId: number,
+      requestedPackageId: number,
+      hostname?: string,
+      username?: string,
+      password?: string
+    ): Promise<UpgradeDowngradeInfo>;
+    doUpgradeDowngrade(
+      accountId: string,
+      customerId: number,
+      requestedPackageId: number,
+      action: "Immediate" | "Scheduled",
+      hostname?: string,
+      username?: string,
+      password?: string
+    ): Promise<true | string>;
   };
+  emitReturnableEvents: ServiceEventsBase;
   onBroadcast: ServiceEventsBase;
   emitBroadcast: ServiceEventsBase;
-  methods: ServiceEventsBase;
 }
 
 export interface AxiosInstance {
@@ -110,7 +124,20 @@ export interface AxiosInstance {
   instance: Axios;
   exp: number;
 }
-export class Plugin extends BSBService<Config, ServiceTypes> {
+
+export class Config extends BSBPluginConfig<typeof secSchema> {
+  validationSchema = secSchema;
+
+  migrate(
+    toVersion: string,
+    fromVersion: string | null,
+    fromConfig: any | null
+  ) {
+    return fromConfig;
+  }
+}
+
+export class Plugin extends BSBService<Config, Events> {
   initBeforePlugins?: string[] | undefined;
   initAfterPlugins?: string[] | undefined;
   runBeforePlugins?: string[] | undefined;
@@ -141,6 +168,22 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
         ).data;
       }
     );
+    const getCustomerById = async (
+      id: number,
+      hostname?: string,
+      username?: string,
+      password?: string
+    ) => {
+      const axios: Axios = await this.getAxios(hostname, username, password);
+      const resp = await axios.get<APICustomerSpecific>(
+        `/api/portal/customer/${id}`
+      );
+      if (resp.status == 404) return null;
+      if (resp.status == 200) return resp.data;
+      throw new Error(
+        `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
+      );
+    };
     await this.events.onReturnableEvent(
       "getSubAccountById",
       async (
@@ -148,17 +191,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
         hostname?: string,
         username?: string,
         password?: string
-      ) => {
-        const axios: Axios = await this.getAxios(hostname, username, password);
-        const resp = await axios.get<APICustomerSpecific>(
-          `/api/portal/customer/${id}`
-        );
-        if (resp.status == 404) return null;
-        if (resp.status == 200) return resp.data;
-        throw new Error(
-          `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
-        );
-      }
+      ) => await getCustomerById(id, hostname, username, password)
     );
     await this.events.onReturnableEvent(
       "getCustomerByAccountId",
@@ -188,11 +221,10 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
         password?: string
       ) => {
         const axios: Axios = await this.getAxios(hostname, username, password);
-        const resp = await axios.get<APICustomerAccount>(
+        const resp = await axios.get<Array<APICustomerSpecific>>(
           `/api/portal/customer/account/${id}/detail`
         );
-        if (resp.status == 200 && resp.data.account !== null) return resp.data;
-        if (resp.status == 200 && resp.data.account === null) return null;
+        if (resp.status == 200 && Tools.isArray(resp.data)) return resp.data;
         throw new Error(
           `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
         );
@@ -215,10 +247,16 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
             lng
           )}&latitude=${encodeURIComponent(lat)}`
         );
+        if (resp.status == 200 && Tools.isArray<string>(resp.data.result)) {
+          return resp.data.result
+            .map((x) => x.toLowerCase())
+            .filter((x) => Object.keys(CoverageServiceTypes).indexOf(x) !== -1)
+            .map((x) => x as CoverageService);
+        }
         if (resp.status == 200 && Tools.isString(resp.data.result)) {
           const result = resp.data.result.toLowerCase();
           if (Object.keys(CoverageServiceTypes).indexOf(result) !== -1) {
-            return result as CoverageService;
+            return [result as CoverageService];
           }
         }
         throw new Error(
@@ -266,6 +304,23 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
         );
       }
     );
+    const getServiceById = async (
+      id: number,
+      hostname?: string,
+      username?: string,
+      password?: string
+    ) => {
+      const axios: Axios = await this.getAxios(hostname, username, password);
+      const resp = await axios.get<APIServicesResponsePackage>(
+        `/api/portal/services/${encodeURIComponent(id)}`
+      );
+      if (resp.status == 200) {
+        return resp.data;
+      }
+      throw new Error(
+        `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
+      );
+    };
     await this.events.onReturnableEvent(
       "getServiceById",
       async (
@@ -273,18 +328,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
         hostname?: string,
         username?: string,
         password?: string
-      ) => {
-        const axios: Axios = await this.getAxios(hostname, username, password);
-        const resp = await axios.get<APIServicesResponsePackage>(
-          `/api/portal/services/package/${encodeURIComponent(id)}`
-        );
-        if (resp.status == 200) {
-          return resp.data;
-        }
-        throw new Error(
-          `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
-        );
-      }
+      ) => getServiceById(id, hostname, username, password)
     );
     await this.events.onReturnableEvent(
       "createNewApplication",
@@ -339,6 +383,118 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
         }
         if (resp.status == 200) {
           return resp.data;
+        }
+        throw new Error(
+          `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
+        );
+      }
+    );
+    const getUpgradeDowngradeInfo = async (
+      currentPackageId: number,
+      requestedPackageId: number,
+      hostname?: string,
+      username?: string,
+      password?: string
+    ) => {
+      const axios: Axios = await this.getAxios(hostname, username, password);
+      const resp = await axios.get<UpgradeDowngradeReequestInfo>(
+        `/api/portal/services/queryupdate?current=${currentPackageId}&requested=${requestedPackageId}`
+      );
+      if (resp.status == 200 && Tools.isString(resp.data.status)) {
+        const result = resp.data.status.toLowerCase();
+        if (Object.keys(UpgradeDowngradeStatusTypes).indexOf(result) !== -1) {
+          let dateAsEpoc = null;
+          if (Tools.isString(resp.data.eta)) {
+            const timeStr = "00:00:00";
+            const timeZoneOffset = 2 * 60; // GMT+2 offset in minutes
+            const dateTimeStr = `${resp.data.eta}T${timeStr}`;
+            const asDate = new Date(dateTimeStr);
+            asDate.setMinutes(asDate.getMinutes() + timeZoneOffset);
+            dateAsEpoc = asDate.getTime();
+          }
+          return {
+            status: result as UpgradeDowngradeStatus,
+            eta: dateAsEpoc,
+          };
+        }
+      }
+      throw new Error(
+        `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
+      );
+    };
+    await this.events.onReturnableEvent(
+      "getUpgradeDowngradeInfo",
+      async (
+        currentPackageId: number,
+        requestedPackageId: number,
+        hostname?: string,
+        username?: string,
+        password?: string
+      ) =>
+        await getUpgradeDowngradeInfo(
+          currentPackageId,
+          requestedPackageId,
+          hostname,
+          username,
+          password
+        )
+    );
+    await this.events.onReturnableEvent(
+      "doUpgradeDowngrade",
+      async (
+        accountId: string,
+        customerId: number,
+        requestedPackageId: number,
+        hostname?: string,
+        username?: string,
+        password?: string
+      ) => {
+        const customer = await getCustomerById(
+          customerId,
+          hostname,
+          username,
+          password
+        );
+        if (customer === null)
+          throw new BSBError("Customer not found by id ({id})", {
+            id: customerId,
+          });
+        if (customer.account !== accountId)
+          throw new BSBError(
+            "Customer account id mismatch [{accountId}|{customerId}]",
+            {
+              accountId,
+              customerId,
+            }
+          );
+        const upgradePossibility = await getUpgradeDowngradeInfo(
+          customer.package.id,
+          requestedPackageId,
+          hostname,
+          username,
+          password
+        );
+        if (upgradePossibility.status === "approve") {
+          throw new BSBError(
+            "Approval is required for this upgrade/downgrade [{accountId}|{customerId}] {currentPackage}->{requestedPackage}",
+            {
+              accountId,
+              customerId,
+              currentPackage: customer.package.id,
+              requestedPackage: requestedPackageId,
+            }
+          );
+        }
+        const requestedPackage = await getServiceById(requestedPackageId, hostname, username, password);
+        const axios: Axios = await this.getAxios(hostname, username, password);
+        const resp = await axios.put<UpgradeDowngradeResponseInfo>(
+          `/api/portal/services/${accountId}/update?customerid=${customerId}&packageName=${encodeURIComponent(requestedPackage.package)}&packageid=${requestedPackageId}&action=${upgradePossibility.status}`
+        );
+        if (resp.status == 200 && resp.data.status === "Success") {
+          return true;
+        }
+        if (Tools.isString(resp.data.message)) {
+          return resp.data.message;
         }
         throw new Error(
           `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
