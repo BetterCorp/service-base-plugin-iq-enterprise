@@ -86,10 +86,10 @@ export interface APIServicesResponse {
 
 export interface APIServicesResponseInstallCost {
   description: string;
-  new: number;
-  upgrade: number;
+  new: boolean;
+  upgrade: boolean;
   cost: number;
-  norouter: number;
+  norouter: boolean;
 }
 
 export interface APIServicesResponsePackage {
@@ -161,4 +161,17 @@ export interface APIAuthResponse {
 export interface APIAuthRequest {
   username: string;
   password: string;
+}
+
+export interface APIRoutersResponse {
+  idrouter: number;
+  make: string;
+  model: string;
+  sku: string;
+  cost: number;
+  ports: string;
+  wrange: string;
+  wspeed: string;
+  special: boolean;
+  specialcost: number;
 }

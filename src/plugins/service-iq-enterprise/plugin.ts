@@ -11,6 +11,7 @@ import {
   APIAuthResponse,
   APICustomerAccount,
   APICustomerSpecific,
+  APIRoutersResponse,
   APIServiceUsageResponse,
   APIServicesResponse,
   APIServicesResponsePackage,
@@ -112,6 +113,12 @@ export interface Events extends BSBPluginEvents {
       username?: string,
       password?: string
     ): Promise<true | string>;
+    getRouters(
+      packageId?: number,
+      hostname?: string,
+      username?: string,
+      password?: string
+    ): Promise<Array<APIRoutersResponse>>;
   };
   emitReturnableEvents: ServiceEventsBase;
   onBroadcast: ServiceEventsBase;
@@ -485,16 +492,47 @@ export class Plugin extends BSBService<Config, Events> {
             }
           );
         }
-        const requestedPackage = await getServiceById(requestedPackageId, hostname, username, password);
+        const requestedPackage = await getServiceById(
+          requestedPackageId,
+          hostname,
+          username,
+          password
+        );
         const axios: Axios = await this.getAxios(hostname, username, password);
         const resp = await axios.put<UpgradeDowngradeResponseInfo>(
-          `/api/portal/services/${accountId}/update?customerid=${customerId}&packageName=${encodeURIComponent(requestedPackage.package)}&packageid=${requestedPackageId}&action=${upgradePossibility.status}`
+          `/api/portal/services/${accountId}/update?customerid=${customerId}&packageName=${encodeURIComponent(
+            requestedPackage.package
+          )}&packageid=${requestedPackageId}&action=${
+            upgradePossibility.status
+          }`
         );
         if (resp.status == 200 && resp.data.status === "Success") {
           return true;
         }
         if (Tools.isString(resp.data.message)) {
           return resp.data.message;
+        }
+        throw new Error(
+          `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
+        );
+      }
+    );
+    await this.events.onReturnableEvent(
+      "getRouters",
+      async (
+        packageId?: number,
+        hostname?: string,
+        username?: string,
+        password?: string
+      ) => {
+        const axios: Axios = await this.getAxios(hostname, username, password);
+        const resp = await axios.put<Array<APIRoutersResponse>>(
+          `/api/portal/services/routers${
+            Tools.isNumber(packageId) ? `/${packageId}` : ""
+          }`
+        );
+        if (resp.status == 200 && resp.data) {
+          return resp.data;
         }
         throw new Error(
           `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
