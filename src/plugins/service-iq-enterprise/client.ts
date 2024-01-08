@@ -348,6 +348,9 @@ export class IQEnterprise extends BSBServiceClient<Plugin> {
   }
   public async getRouters(): Promise<Array<APIRoutersResponse>>;
   public async getRouters(
+    packageId: number
+  ): Promise<Array<APIRoutersResponse>>;
+  public async getRouters(
     packageId: number,
     hostname: string,
     username: string,
