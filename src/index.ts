@@ -81,6 +81,15 @@ export interface APIServicesResponse {
   idgroup: string;
   description: string;
   packages: APIServicesResponsePackage[];
+  installcosts: Array<APIServicesResponseInstallCost>;
+}
+
+export interface APIServicesResponseInstallCost {
+  description: string;
+  new: number;
+  upgrade: number;
+  cost: number;
+  norouter: number;
 }
 
 export interface APIServicesResponsePackage {
@@ -91,6 +100,9 @@ export interface APIServicesResponsePackage {
   download: number;
   upload: number;
   approve: boolean;
+  discountrouter: boolean;
+  discountinstall: boolean;
+  installcost: number;
 }
 
 export interface APICustomerAccount {
