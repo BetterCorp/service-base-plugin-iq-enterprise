@@ -39,15 +39,6 @@ export class IQEnterprise extends BSBServiceClient<Plugin> {
   }
 
   public async getCustomersByEmail(
-    email: string
-  ): Promise<Array<APICustomerAccount>>;
-  public async getCustomersByEmail(
-    email: string,
-    hostname: string,
-    username: string,
-    password: string
-  ): Promise<Array<APICustomerAccount>>;
-  public async getCustomersByEmail(
     email: string,
     hostname?: string,
     username?: string,
@@ -63,15 +54,6 @@ export class IQEnterprise extends BSBServiceClient<Plugin> {
     );
   }
 
-  public async getSubAccountById(
-    id: number
-  ): Promise<APICustomerSpecific | null>;
-  public async getSubAccountById(
-    id: number,
-    hostname: string,
-    username: string,
-    password: string
-  ): Promise<APICustomerSpecific | null>;
   public async getSubAccountById(
     id: number,
     hostname?: string,
@@ -89,15 +71,6 @@ export class IQEnterprise extends BSBServiceClient<Plugin> {
   }
 
   public async getCustomerByAccountId(
-    id: string
-  ): Promise<APICustomerAccount | null>;
-  public async getCustomerByAccountId(
-    id: string,
-    hostname: string,
-    username: string,
-    password: string
-  ): Promise<APICustomerAccount | null>;
-  public async getCustomerByAccountId(
     id: string,
     hostname?: string,
     username?: string,
@@ -114,15 +87,6 @@ export class IQEnterprise extends BSBServiceClient<Plugin> {
   }
 
   public async getSubAccountsByAccountId(
-    id: string
-  ): Promise<Array<APICustomerSpecific>>;
-  public async getSubAccountsByAccountId(
-    id: string,
-    hostname: string,
-    username: string,
-    password: string
-  ): Promise<Array<APICustomerSpecific>>;
-  public async getSubAccountsByAccountId(
     id: string,
     hostname?: string,
     username?: string,
@@ -137,17 +101,7 @@ export class IQEnterprise extends BSBServiceClient<Plugin> {
       password ?? this.customConfig.password
     );
   }
-  public async coverageLookup(
-    lat: number,
-    lng: number
-  ): Promise<Array<CoverageService>>;
-  public async coverageLookup(
-    lat: number,
-    lng: number,
-    hostname: string,
-    username: string,
-    password: string
-  ): Promise<Array<CoverageService>>;
+
   public async coverageLookup(
     lat: number,
     lng: number,
@@ -165,15 +119,7 @@ export class IQEnterprise extends BSBServiceClient<Plugin> {
       password ?? this.customConfig.password
     );
   }
-  public async getServices(
-    service: CoverageService
-  ): Promise<Array<APIServicesResponse>>;
-  public async getServices(
-    service?: CoverageService,
-    hostname?: string,
-    username?: string,
-    password?: string
-  ): Promise<Array<APIServicesResponse>>;
+
   public async getServices(
     service?: CoverageService,
     hostname?: string,
@@ -189,13 +135,7 @@ export class IQEnterprise extends BSBServiceClient<Plugin> {
       password ?? this.customConfig.password
     );
   }
-  public async getServicesInGroup(id: number): Promise<APIServicesResponse>;
-  public async getServicesInGroup(
-    id: number,
-    hostname: string,
-    username: string,
-    password: string
-  ): Promise<APIServicesResponse>;
+
   public async getServicesInGroup(
     id: number,
     hostname?: string,
@@ -211,13 +151,7 @@ export class IQEnterprise extends BSBServiceClient<Plugin> {
       password ?? this.customConfig.password
     );
   }
-  public async getServiceById(id: number): Promise<APIServicesResponsePackage>;
-  public async getServiceById(
-    id: number,
-    hostname: string,
-    username: string,
-    password: string
-  ): Promise<APIServicesResponsePackage>;
+
   public async getServiceById(
     id: number,
     hostname?: string,
@@ -233,13 +167,7 @@ export class IQEnterprise extends BSBServiceClient<Plugin> {
       password ?? this.customConfig.password
     );
   }
-  public async createNewApplication(data: NewAPIApplication): Promise<number>;
-  public async createNewApplication(
-    data: NewAPIApplication,
-    hostname: string,
-    username: string,
-    password: string
-  ): Promise<number>;
+
   public async createNewApplication(
     data: NewAPIApplication,
     hostname?: string,
@@ -255,12 +183,7 @@ export class IQEnterprise extends BSBServiceClient<Plugin> {
       password ?? this.customConfig.password
     );
   }
-  public async getServiceUsageBySubAccount(
-    subAccountId: string,
-    month: number,
-    year: number,
-    day?: number
-  ): Promise<APIServiceUsageResponse>;
+
   public async getServiceUsageBySubAccount(
     subAccountId: string,
     month: number,
@@ -282,17 +205,7 @@ export class IQEnterprise extends BSBServiceClient<Plugin> {
       password ?? this.customConfig.password
     );
   }
-  public async getUpgradeDowngradeInfo(
-    currentPackageId: number,
-    requestedPackageId: number
-  ): Promise<UpgradeDowngradeInfo>;
-  public async getUpgradeDowngradeInfo(
-    currentPackageId: number,
-    requestedPackageId: number,
-    hostname: string,
-    username: string,
-    password: string
-  ): Promise<UpgradeDowngradeInfo>;
+
   public async getUpgradeDowngradeInfo(
     currentPackageId: number,
     requestedPackageId: number,
@@ -310,21 +223,7 @@ export class IQEnterprise extends BSBServiceClient<Plugin> {
       password ?? this.customConfig.password
     );
   }
-  public async doUpgradeDowngrade(
-    accountId: string,
-    customerId: number,
-    requestedPackageId: number,
-    action: "Immediate" | "Scheduled"
-  ): Promise<true | string>;
-  public async doUpgradeDowngrade(
-    accountId: string,
-    customerId: number,
-    requestedPackageId: number,
-    action: "Immediate" | "Scheduled",
-    hostname: string,
-    username: string,
-    password: string
-  ): Promise<true | string>;
+
   public async doUpgradeDowngrade(
     accountId: string,
     customerId: number,
@@ -346,16 +245,7 @@ export class IQEnterprise extends BSBServiceClient<Plugin> {
       password ?? this.customConfig.password
     );
   }
-  public async getRouters(): Promise<Array<APIRoutersResponse>>;
-  public async getRouters(
-    packageId: number
-  ): Promise<Array<APIRoutersResponse>>;
-  public async getRouters(
-    packageId: number,
-    hostname: string,
-    username: string,
-    password: string
-  ): Promise<Array<APIRoutersResponse>>;
+
   public async getRouters(
     packageId?: number,
     hostname?: string,

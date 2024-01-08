@@ -526,7 +526,7 @@ export class Plugin extends BSBService<Config, Events> {
         password?: string
       ) => {
         const axios: Axios = await this.getAxios(hostname, username, password);
-        const resp = await axios.put<Array<APIRoutersResponse>>(
+        const resp = await axios.get<Array<APIRoutersResponse>>(
           `/api/portal/services/routers${
             Tools.isNumber(packageId) ? `/${packageId}` : ""
           }`
