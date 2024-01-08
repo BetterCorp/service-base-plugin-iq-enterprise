@@ -89,7 +89,6 @@ export interface APIServicesResponseInstallCost {
   new: boolean;
   upgrade: boolean;
   cost: number;
-  norouter: boolean;
 }
 
 export interface APIServicesResponsePackage {
