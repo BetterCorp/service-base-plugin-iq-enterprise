@@ -561,12 +561,32 @@ export class Plugin extends BSBService<Config, Events> {
     );
   }
 
+  private async getToken(instance: Axios, username: string, password: string) {
+    const resp = await instance.post<
+      APIAuthRequest,
+      AxiosResponse<APIAuthResponse>
+    >("/api/auth/login", {
+      user: username,
+      password,
+    });
+    if (resp.status !== 200) throw new Error("Invalid response");
+    return resp.data.tokenstring;
+  }
+
   private async getAxiosInstance(
     hostname: string,
     username: string,
-    password: string
+    password: string,
+    cleanup: boolean = false
   ): Promise<Axios> {
     const now = new Date().getTime() - 30 * 1000;
+    if (cleanup) {
+      for (let i = 0; i < this._axios.length; i++) {
+        if (this._axios[i].hostname !== hostname) continue;
+        if (this._axios[i].username !== username) continue;
+        this._axios.splice(i, 1);
+      }
+    }
     for (let i = 0; i < this._axios.length; i++) {
       if (this._axios[i].hostname !== hostname) continue;
       if (this._axios[i].username !== username) continue;
@@ -581,17 +601,40 @@ export class Plugin extends BSBService<Config, Events> {
       headers: {},
     });
     instance.defaults.baseURL = hostname;
-    const resp = await instance.post<
-      APIAuthRequest,
-      AxiosResponse<APIAuthResponse>
-    >("/api/auth/login", {
-      user: username,
-      password,
-    });
-    if (resp.status !== 200) throw new Error("Invalid response");
     instance.defaults.headers.common[
       "Authorization"
-    ] = `Bearer ${resp.data.tokenstring}`;
+    ] = `Bearer ${await this.getToken(instance, username, password)}`;
+    const self = this;
+    instance.interceptors.response.use(
+      (response) => response,
+      async function (error) {
+        const { config } = error;
+
+        if (!config || config.retry === true) return Promise.reject(error);
+
+        if (error.response.status !== 401 && error.response.status !== 403)
+          return Promise.reject(error);
+
+        config.retry = true;
+        try {
+          instance.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${await self.getToken(instance, username, password)}`;
+          for (let i = 0; i < self._axios.length; i++) {
+            if (self._axios[i].hostname !== hostname) continue;
+            if (self._axios[i].username !== username) continue;
+            self._axios[i].exp = new Date().getTime() + 5 * 60 * 1000;
+            break;
+          }
+
+          return instance(config);
+        } catch (e: any) {
+          self.log.error(e.message ?? e, {});
+        }
+        // Do something with response error
+        return Promise.reject(error);
+      }
+    );
     this._axios.push({
       hostname,
       username,
