@@ -1,5 +1,6 @@
 import { BSBService, BSBServiceClient } from "@bettercorp/service-base";
 import {
+  APIApplicationResponse,
   APICustomerAccount,
   APICustomerSpecific,
   APIRoutersResponse,
@@ -8,6 +9,7 @@ import {
   APIServicesResponsePackage,
   CoverageService,
   NewAPIApplication,
+  PartialNewAPIApplication,
   UpgradeDowngradeInfo,
 } from "../../index";
 import { Plugin } from "./plugin";
@@ -168,16 +170,48 @@ export class IQEnterprise extends BSBServiceClient<Plugin> {
     );
   }
 
-  public async createNewApplication(
-    data: NewAPIApplication,
+  public async newApplication(
+    data: PartialNewAPIApplication,
     hostname?: string,
     username?: string,
     password?: string
   ): Promise<number> {
     return await this.events.emitEventAndReturn(
-      "createNewApplication",
+      "newApplication",
       30,
       data,
+      hostname ?? this.customConfig.hostname,
+      username ?? this.customConfig.username,
+      password ?? this.customConfig.password
+    );
+  }
+  public async updateApplication(
+    applicationId: number,
+    data: NewAPIApplication,
+    hostname?: string,
+    username?: string,
+    password?: string
+  ): Promise<boolean> {
+    return await this.events.emitEventAndReturn(
+      "updateApplication",
+      30,
+      applicationId,
+      data,
+      hostname ?? this.customConfig.hostname,
+      username ?? this.customConfig.username,
+      password ?? this.customConfig.password
+    );
+  }
+  public async getApplications(
+    email: string,
+    hostname?: string,
+    username?: string,
+    password?: string
+  ): Promise<Array<APIApplicationResponse>> {
+    return await this.events.emitEventAndReturn(
+      "getApplications",
+      30,
+      email,
       hostname ?? this.customConfig.hostname,
       username ?? this.customConfig.username,
       password ?? this.customConfig.password

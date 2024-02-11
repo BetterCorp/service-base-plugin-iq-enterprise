@@ -22,20 +22,20 @@
     "@types/assert": "^1.5.10",
     "@types/chai": "^4.3.11",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^20.10.5",
+    "@types/node": "^20.11.17",
     "@types/yargs": "^17.0.32",
-    "@typescript-eslint/eslint-plugin": "^6.15.0",
-    "@typescript-eslint/parser": "^6.15.0",
-    "chai": "^4.3.10",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "chai": "^5.0.3",
     "eslint": "^8.56.0",
-    "mocha": "^10.2.0",
+    "mocha": "^10.3.0",
     "nyc": "^15.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@bettercorp/service-base": "^8.5.47",
+    "@bettercorp/service-base": "^8.5.57",
     "@bettercorp/tools": "^3.7.0",
-    "axios": "^1.6.2"
+    "axios": "^1.6.7"
   }
 }

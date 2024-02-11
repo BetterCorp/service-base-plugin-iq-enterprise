@@ -7,8 +7,10 @@ import {
   ServiceEventsBase,
 } from "@bettercorp/service-base";
 import {
+  APIApplicationResponse,
   APIAuthRequest,
   APIAuthResponse,
+  APIBanksResponse,
   APICustomerAccount,
   APICustomerSpecific,
   APIRoutersResponse,
@@ -18,6 +20,7 @@ import {
   CoverageService,
   CoverageServiceTypes,
   NewAPIApplication,
+  PartialNewAPIApplication,
   UpgradeDowngradeInfo,
   UpgradeDowngradeReequestInfo,
   UpgradeDowngradeResponseInfo,
@@ -82,12 +85,25 @@ export interface Events extends BSBPluginEvents {
       username?: string,
       password?: string
     ): Promise<APIServicesResponsePackage>;
-    createNewApplication(
-      data: NewAPIApplication,
+    newApplication(
+      data: PartialNewAPIApplication,
       hostname?: string,
       username?: string,
       password?: string
     ): Promise<number>;
+    getApplications(
+      email: string,
+      hostname?: string,
+      username?: string,
+      password?: string
+    ): Promise<Array<APIApplicationResponse>>;
+    updateApplication(
+      applicationId: number,
+      data: NewAPIApplication,
+      hostname?: string,
+      username?: string,
+      password?: string
+    ): Promise<boolean>;
     getServiceUsageByAccount(
       id: string,
       month: number,
@@ -119,6 +135,11 @@ export interface Events extends BSBPluginEvents {
       username?: string,
       password?: string
     ): Promise<Array<APIRoutersResponse>>;
+    getBanks(
+      hostname?: string,
+      username?: string,
+      password?: string
+    ): Promise<Array<APIBanksResponse>>;
   };
   emitReturnableEvents: ServiceEventsBase;
   onBroadcast: ServiceEventsBase;
@@ -338,22 +359,63 @@ export class Plugin extends BSBService<Config, Events> {
       ) => getServiceById(id, hostname, username, password)
     );
     await this.events.onReturnableEvent(
-      "createNewApplication",
+      "newApplication",
       async (
-        data: NewAPIApplication,
+        data: PartialNewAPIApplication,
         hostname?: string,
         username?: string,
         password?: string
       ) => {
         const axios: Axios = await this.getAxios(hostname, username, password);
         const resp = await axios.post<{
-          message: string; // "Applcation Created: id=26026"
-        }>(`/api/application`, data);
+          idapplication?: number;
+        }>(`/api/portal/application/create`, data);
         if (resp.status == 200) {
-          const match = resp.data.message.match(/id=(\d+)/);
-          if (match !== null) {
-            return parseInt(match[1]);
+          if (Tools.isNumber(resp.data.idapplication)) {
+            return resp.data.idapplication;
           }
+        }
+        throw new Error(
+          `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
+        );
+      }
+    );
+    await this.events.onReturnableEvent(
+      "updateApplication",
+      async (
+        applicationId: number,
+        data: NewAPIApplication,
+        hostname?: string,
+        username?: string,
+        password?: string
+      ) => {
+        const axios: Axios = await this.getAxios(hostname, username, password);
+        const resp = await axios.put<{}>(`/api/portal/application/update`, {
+          idapplication: applicationId,
+          ...data,
+        });
+        if (resp.status == 200) {
+          return true;
+        }
+        throw new Error(
+          `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
+        );
+      }
+    );
+    await this.events.onReturnableEvent(
+      "getApplications",
+      async (
+        email: string,
+        hostname?: string,
+        username?: string,
+        password?: string
+      ) => {
+        const axios: Axios = await this.getAxios(hostname, username, password);
+        const resp = await axios.get<Array<APIApplicationResponse>>(
+          `/api/portal/application/${encodeURIComponent(email)}`
+        );
+        if (resp.status == 200 && resp.data) {
+          return resp.data;
         }
         throw new Error(
           `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
@@ -530,6 +592,21 @@ export class Plugin extends BSBService<Config, Events> {
           `/api/portal/services/routers${
             Tools.isNumber(packageId) ? `/${packageId}` : ""
           }`
+        );
+        if (resp.status == 200 && resp.data) {
+          return resp.data;
+        }
+        throw new Error(
+          `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
+        );
+      }
+    );
+    await this.events.onReturnableEvent(
+      "getBanks",
+      async (hostname?: string, username?: string, password?: string) => {
+        const axios: Axios = await this.getAxios(hostname, username, password);
+        const resp = await axios.get<Array<APIBanksResponse>>(
+          `/api/portal/banks`
         );
         if (resp.status == 200 && resp.data) {
           return resp.data;

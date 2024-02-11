@@ -52,30 +52,63 @@ export interface APIServiceUsageResponse {
   tKBCombined: number;
 }
 
-export interface NewAPIApplication {
+export type NewAPIApplicationBase = {
   description: string;
-  tel: string;
-  vatnr: string;
+  email1: string;
+  type: "Business" | "Residential";
+};
+export type NewAPIApplicationBaseApplication = {
+  idapplication: number;
+  debitorder: boolean;
+};
+export type NewAPIApplicationBaseBank = {
+  bank: string;
+  bcode: string;
+  baccount: string;
+  btype: "Savings" | "Cheque" | "Transmission" | "Credit" | "Checking";
+};
+export type NewAPIApplicationBaseGPS = {
+  latitude: number;
+  longitude: number;
+};
+export type NewAPIApplicationBaseBilling = {
   address1: string;
   address2: string;
   atown: string;
   acode: string;
+  cell1: string;
+  contact: string;
+};
+export type NewAPIApplicationBasePostal = {
   postal1: string;
   postal2: string;
   ptown: string;
   pcode: string;
-  contact: string;
-  cell1: string;
-  email1: string;
   cell2: string;
   email2: string;
+};
+export type NewAPIApplicationBaseDetails = {
+  tel: string;
+  vatnr: string;
   id: string;
   package: string;
-  bank: string;
-  bcode: string;
-  baccount: string;
-  btype: string;
-}
+} & NewAPIApplicationBaseBank &
+  NewAPIApplicationBaseGPS &
+  NewAPIApplicationBaseBilling &
+  NewAPIApplicationBasePostal;
+export type NewAPIApplication = NewAPIApplicationBaseDetails &
+  NewAPIApplicationBase;
+
+export type PartialNewAPIApplication = Partial<NewAPIApplicationBaseDetails> &
+  NewAPIApplicationBase;
+
+export type UpdateNewAPIApplication = NewAPIApplicationBaseDetails &
+  NewAPIApplicationBase &
+  NewAPIApplicationBaseApplication;
+
+export type APIApplicationResponse = Partial<NewAPIApplicationBaseDetails> &
+  NewAPIApplicationBase &
+  NewAPIApplicationBaseApplication;
 
 export interface APIServicesResponse {
   idgroup: string;
@@ -173,4 +206,8 @@ export interface APIRoutersResponse {
   wspeed: string;
   special: boolean;
   specialcost: number;
+}
+export interface APIBanksResponse {
+  bank: string;
+  code: string;
 }
