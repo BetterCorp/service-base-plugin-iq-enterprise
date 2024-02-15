@@ -268,21 +268,19 @@ export class Plugin extends BSBService<Config, Events> {
         password?: string
       ) => {
         const axios: Axios = await this.getAxios(hostname, username, password);
-        const resp = await axios.get<{
-          result: string;
-        }>(
-          `/api/portal/coverage/coords?longitude=${encodeURIComponent(
+        const resp = await axios.get<Array<string>>(
+          `/api/portal/services/coverage?longitude=${encodeURIComponent(
             lng
           )}&latitude=${encodeURIComponent(lat)}`
         );
-        if (resp.status == 200 && Tools.isArray<string>(resp.data.result)) {
-          return resp.data.result
+        if (resp.status == 200 && Tools.isArray<string>(resp.data)) {
+          return resp.data
             .map((x) => x.toLowerCase())
             .filter((x) => Object.keys(CoverageServiceTypes).indexOf(x) !== -1)
             .map((x) => x as CoverageService);
         }
-        if (resp.status == 200 && Tools.isString(resp.data.result)) {
-          const result = resp.data.result.toLowerCase();
+        if (resp.status == 200 && Tools.isString(resp.data)) {
+          const result = resp.data.toLowerCase();
           if (Object.keys(CoverageServiceTypes).indexOf(result) !== -1) {
             return [result as CoverageService];
           }

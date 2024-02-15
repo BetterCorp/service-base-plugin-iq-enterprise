@@ -1,6 +1,7 @@
 import { BSBService, BSBServiceClient } from "@bettercorp/service-base";
 import {
   APIApplicationResponse,
+  APIBanksResponse,
   APICustomerAccount,
   APICustomerSpecific,
   APIRoutersResponse,
@@ -290,6 +291,20 @@ export class IQEnterprise extends BSBServiceClient<Plugin> {
       "getRouters",
       30,
       packageId,
+      hostname ?? this.customConfig.hostname,
+      username ?? this.customConfig.username,
+      password ?? this.customConfig.password
+    );
+  }
+
+  public async getBanks(
+    hostname?: string,
+    username?: string,
+    password?: string
+  ): Promise<Array<APIBanksResponse>> {
+    return await this.events.emitEventAndReturn(
+      "getBanks",
+      30,
       hostname ?? this.customConfig.hostname,
       username ?? this.customConfig.username,
       password ?? this.customConfig.password
