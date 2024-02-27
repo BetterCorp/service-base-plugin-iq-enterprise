@@ -14,7 +14,9 @@ import {
 } from "../../index";
 import { Plugin } from "./plugin";
 
-export class IQEnterprise extends BSBServiceClient<Plugin> {
+export class IQEnterprise<
+  Meta extends object
+> extends BSBServiceClient<Plugin> {
   public readonly pluginName = "service-iq-enterprise";
   public readonly initBeforePlugins?: string[] | undefined;
   public readonly initAfterPlugins?: string[] | undefined;
@@ -171,7 +173,7 @@ export class IQEnterprise extends BSBServiceClient<Plugin> {
   }
 
   public async newApplication(
-    data: PartialNewAPIApplication,
+    data: PartialNewAPIApplication<Meta>,
     hostname?: string,
     username?: string,
     password?: string
@@ -187,7 +189,7 @@ export class IQEnterprise extends BSBServiceClient<Plugin> {
   }
   public async updateApplication(
     applicationId: number,
-    data: NewAPIApplication,
+    data: NewAPIApplication<Meta>,
     hostname?: string,
     username?: string,
     password?: string
@@ -207,7 +209,7 @@ export class IQEnterprise extends BSBServiceClient<Plugin> {
     hostname?: string,
     username?: string,
     password?: string
-  ): Promise<Array<APIApplicationResponse>> {
+  ): Promise<Array<APIApplicationResponse<Meta>>> {
     return await this.events.emitEventAndReturn(
       "getApplications",
       30,

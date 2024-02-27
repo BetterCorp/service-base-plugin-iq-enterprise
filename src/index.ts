@@ -43,7 +43,8 @@ export interface APIServiceUsageResponse {
   tKBCombined: number;
 }
 
-export type NewAPIApplicationBase = {
+export type NewAPIApplicationBase<Meta extends object> = {
+  meta: Meta | null;
   description: string;
   email1: string;
   type: "Business" | "Residential";
@@ -87,19 +88,21 @@ export type NewAPIApplicationBaseDetails = {
   NewAPIApplicationBaseGPS &
   NewAPIApplicationBaseBilling &
   NewAPIApplicationBasePostal;
-export type NewAPIApplication = NewAPIApplicationBaseDetails &
-  NewAPIApplicationBase;
+export type NewAPIApplication<Meta extends object> =
+  NewAPIApplicationBaseDetails & NewAPIApplicationBase<Meta>;
 
-export type PartialNewAPIApplication = Partial<NewAPIApplicationBaseDetails> &
-  NewAPIApplicationBase;
+export type PartialNewAPIApplication<Meta extends object> =
+  Partial<NewAPIApplicationBaseDetails> & NewAPIApplicationBase<Meta>;
 
-export type UpdateNewAPIApplication = NewAPIApplicationBaseDetails &
-  NewAPIApplicationBase &
-  NewAPIApplicationBaseApplication;
+export type UpdateNewAPIApplication<Meta extends object> =
+  NewAPIApplicationBaseDetails &
+    NewAPIApplicationBase<Meta> &
+    NewAPIApplicationBaseApplication;
 
-export type APIApplicationResponse = Partial<NewAPIApplicationBaseDetails> &
-  NewAPIApplicationBase &
-  NewAPIApplicationBaseApplication;
+export type APIApplicationResponse<Meta extends object> =
+  Partial<NewAPIApplicationBaseDetails> &
+    NewAPIApplicationBase<Meta> &
+    NewAPIApplicationBaseApplication;
 
 export interface APIServicesResponse {
   idgroup: string;

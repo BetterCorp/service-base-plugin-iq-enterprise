@@ -30,7 +30,7 @@ import { Tools } from "@bettercorp/tools/lib/Tools";
 import axios from "axios";
 import { secSchema } from "./sec-config";
 
-export interface Events extends BSBPluginEvents {
+export interface Events<Meta extends object> extends BSBPluginEvents {
   onEvents: ServiceEventsBase;
   emitEvents: ServiceEventsBase;
   onReturnableEvents: {
@@ -84,7 +84,7 @@ export interface Events extends BSBPluginEvents {
       password?: string
     ): Promise<APIServicesResponsePackage>;
     newApplication(
-      data: PartialNewAPIApplication,
+      data: PartialNewAPIApplication<Meta>,
       hostname?: string,
       username?: string,
       password?: string
@@ -94,10 +94,10 @@ export interface Events extends BSBPluginEvents {
       hostname?: string,
       username?: string,
       password?: string
-    ): Promise<Array<APIApplicationResponse>>;
+    ): Promise<Array<APIApplicationResponse<Meta>>>;
     updateApplication(
       applicationId: number,
-      data: NewAPIApplication,
+      data: NewAPIApplication<Meta>,
       hostname?: string,
       username?: string,
       password?: string
@@ -163,7 +163,7 @@ export class Config extends BSBPluginConfig<typeof secSchema> {
   }
 }
 
-export class Plugin extends BSBService<Config, Events> {
+export class Plugin<Meta extends object = any> extends BSBService<Config, Events<Meta>> {
   initBeforePlugins?: string[] | undefined;
   initAfterPlugins?: string[] | undefined;
   runBeforePlugins?: string[] | undefined;
@@ -350,12 +350,13 @@ export class Plugin extends BSBService<Config, Events> {
     await this.events.onReturnableEvent(
       "newApplication",
       async (
-        data: PartialNewAPIApplication,
+        data: PartialNewAPIApplication<any>,
         hostname?: string,
         username?: string,
         password?: string
       ) => {
         const axios: Axios = await this.getAxios(hostname, username, password);
+        data.meta = data.meta !== null ? JSON.stringify(data.meta) : null;
         const resp = await axios.post<{
           idapplication?: number;
         }>(`/api/portal/application/create`, data);
@@ -373,12 +374,13 @@ export class Plugin extends BSBService<Config, Events> {
       "updateApplication",
       async (
         applicationId: number,
-        data: NewAPIApplication,
+        data: NewAPIApplication<any>,
         hostname?: string,
         username?: string,
         password?: string
       ) => {
         const axios: Axios = await this.getAxios(hostname, username, password);
+        data.meta = data.meta !== null ? JSON.stringify(data.meta) : null;
         const resp = await axios.put<{}>(`/api/portal/application/update`, {
           idapplication: applicationId,
           ...data,
@@ -400,11 +402,14 @@ export class Plugin extends BSBService<Config, Events> {
         password?: string
       ) => {
         const axios: Axios = await this.getAxios(hostname, username, password);
-        const resp = await axios.get<Array<APIApplicationResponse>>(
+        const resp = await axios.get<Array<APIApplicationResponse<any>>>(
           `/api/portal/application/${encodeURIComponent(email)}`
         );
         if (resp.status == 200 && resp.data) {
-          return resp.data;
+          return resp.data.map((d) => {
+            d.meta = Tools.isString(d.meta) ? JSON.parse(d.meta) : null;
+            return d;
+          });
         }
         throw new Error(
           `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
