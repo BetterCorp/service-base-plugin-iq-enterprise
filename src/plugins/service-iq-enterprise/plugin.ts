@@ -163,7 +163,10 @@ export class Config extends BSBPluginConfig<typeof secSchema> {
   }
 }
 
-export class Plugin<Meta extends object = any> extends BSBService<Config, Events<Meta>> {
+export class Plugin<Meta extends object = any> extends BSBService<
+  Config,
+  Events<Meta>
+> {
   initBeforePlugins?: string[] | undefined;
   initAfterPlugins?: string[] | undefined;
   runBeforePlugins?: string[] | undefined;
@@ -356,7 +359,9 @@ export class Plugin<Meta extends object = any> extends BSBService<Config, Events
         password?: string
       ) => {
         const axios: Axios = await this.getAxios(hostname, username, password);
-        data.meta = data.meta !== null ? JSON.stringify(data.meta) : null;
+        (data as any).portalmeta =
+          data.meta !== null ? JSON.stringify(data.meta) : null;
+        delete data.meta;
         const resp = await axios.post<{
           idapplication?: number;
         }>(`/api/portal/application/create`, data);
@@ -380,7 +385,9 @@ export class Plugin<Meta extends object = any> extends BSBService<Config, Events
         password?: string
       ) => {
         const axios: Axios = await this.getAxios(hostname, username, password);
-        data.meta = data.meta !== null ? JSON.stringify(data.meta) : null;
+        (data as any).portalmeta =
+          data.meta !== null ? JSON.stringify(data.meta) : null;
+        delete data.meta;
         const resp = await axios.put<{}>(`/api/portal/application/update`, {
           idapplication: applicationId,
           ...data,
@@ -406,8 +413,11 @@ export class Plugin<Meta extends object = any> extends BSBService<Config, Events
           `/api/portal/application/${encodeURIComponent(email)}`
         );
         if (resp.status == 200 && resp.data) {
-          return resp.data.map((d) => {
-            d.meta = Tools.isString(d.meta) ? JSON.parse(d.meta) : null;
+          return resp.data.map((d: any) => {
+            d.meta = Tools.isString(d.portalmeta)
+              ? JSON.parse(d.portalmeta)
+              : null;
+            delete d.portalmeta;
             return d;
           });
         }
