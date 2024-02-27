@@ -17,8 +17,6 @@ import {
   APIServiceUsageResponse,
   APIServicesResponse,
   APIServicesResponsePackage,
-  CoverageService,
-  CoverageServiceTypes,
   NewAPIApplication,
   PartialNewAPIApplication,
   UpgradeDowngradeInfo,
@@ -66,9 +64,9 @@ export interface Events extends BSBPluginEvents {
       hostname?: string,
       username?: string,
       password?: string
-    ): Promise<Array<CoverageService>>;
+    ): Promise<Array<string>>;
     getServices(
-      service?: CoverageService,
+      service?: string,
       hostname?: string,
       username?: string,
       password?: string
@@ -274,16 +272,7 @@ export class Plugin extends BSBService<Config, Events> {
           )}&latitude=${encodeURIComponent(lat)}`
         );
         if (resp.status == 200 && Tools.isArray<string>(resp.data)) {
-          return resp.data
-            .map((x) => x.toLowerCase())
-            .filter((x) => Object.keys(CoverageServiceTypes).indexOf(x) !== -1)
-            .map((x) => x as CoverageService);
-        }
-        if (resp.status == 200 && Tools.isString(resp.data)) {
-          const result = resp.data.toLowerCase();
-          if (Object.keys(CoverageServiceTypes).indexOf(result) !== -1) {
-            return [result as CoverageService];
-          }
+          return resp.data;
         }
         throw new Error(
           `Error ${resp.status}: ${resp.statusText} [${resp.data}]`
@@ -293,14 +282,16 @@ export class Plugin extends BSBService<Config, Events> {
     await this.events.onReturnableEvent(
       "getServices",
       async (
-        service?: CoverageService,
+        service?: string,
         hostname?: string,
         username?: string,
         password?: string
       ) => {
         const axios: Axios = await this.getAxios(hostname, username, password);
         const resp = await axios.get<Array<APIServicesResponse>>(
-          `/api/portal/services/${encodeURIComponent(service ?? "")}`
+          `/api/portal/services/${encodeURIComponent(
+            (service ?? "").toLowerCase()
+          )}`
         );
         if (resp.status == 200) {
           return resp.data;

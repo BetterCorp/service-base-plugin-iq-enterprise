@@ -8,7 +8,6 @@ import {
   APIServiceUsageResponse,
   APIServicesResponse,
   APIServicesResponsePackage,
-  CoverageService,
   NewAPIApplication,
   PartialNewAPIApplication,
   UpgradeDowngradeInfo,
@@ -111,7 +110,7 @@ export class IQEnterprise extends BSBServiceClient<Plugin> {
     hostname?: string,
     username?: string,
     password?: string
-  ): Promise<Array<CoverageService>> {
+  ): Promise<Array<string>> {
     return await this.events.emitEventAndReturn(
       "coverageLookup",
       30,
@@ -124,7 +123,7 @@ export class IQEnterprise extends BSBServiceClient<Plugin> {
   }
 
   public async getServices(
-    service?: CoverageService,
+    service?: string,
     hostname?: string,
     username?: string,
     password?: string

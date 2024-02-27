@@ -6,15 +6,6 @@ export interface ServiceUsageData {
   uploadKBytes: number;
 }
 
-export const CoverageServiceTypes = {
-  trufibre: "trufibre",
-  skyfibre: "skyfibre",
-  wireless: "wireless",
-  none: "none",
-};
-export type CoverageService =
-  (typeof CoverageServiceTypes)[keyof typeof CoverageServiceTypes];
-
 export const UpgradeDowngradeInfoStatusTypes = {
   Scheduled: "Scheduled",
   Immediate: "Immediate",
