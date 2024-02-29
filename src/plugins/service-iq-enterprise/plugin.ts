@@ -362,6 +362,7 @@ export class Plugin<Meta extends object = any> extends BSBService<
         (data as any).portalmeta =
           data.meta !== null ? JSON.stringify(data.meta) : null;
         delete data.meta;
+        (data as any).debitorder = true;
         const resp = await axios.post<{
           idapplication?: number;
         }>(`/api/portal/application/create`, data);
