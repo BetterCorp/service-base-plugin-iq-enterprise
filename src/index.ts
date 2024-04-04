@@ -51,6 +51,7 @@ export type NewAPIApplicationBase<Meta extends object> = {
 };
 export type NewAPIApplicationBaseApplication = {
   idapplication: number;
+  uid: string;
   debitorder: boolean;
 };
 export type NewAPIApplicationBaseBank = {

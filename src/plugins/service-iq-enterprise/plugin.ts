@@ -661,7 +661,7 @@ export class Plugin<Meta extends object = any> extends BSBService<
     password: string,
     cleanup: boolean = false
   ): Promise<Axios> {
-    const now = new Date().getTime() - 30 * 1000;
+    const now = new Date().getTime();
     if (cleanup) {
       for (let i = 0; i < this._axios.length; i++) {
         if (this._axios[i].hostname !== hostname) continue;
@@ -692,7 +692,7 @@ export class Plugin<Meta extends object = any> extends BSBService<
       async function (error) {
         const { config } = error;
 
-        if (!config || config.retry === true) return Promise.reject(error);
+        if (!config || config.retry === true || !error.response) return Promise.reject(error);
 
         if (error.response.status !== 401 && error.response.status !== 403)
           return Promise.reject(error);
@@ -705,7 +705,7 @@ export class Plugin<Meta extends object = any> extends BSBService<
           for (let i = 0; i < self._axios.length; i++) {
             if (self._axios[i].hostname !== hostname) continue;
             if (self._axios[i].username !== username) continue;
-            self._axios[i].exp = new Date().getTime() + 5 * 60 * 1000;
+            self._axios[i].exp = new Date().getTime() + 4 * 60 * 1000;
             break;
           }
 
@@ -721,7 +721,7 @@ export class Plugin<Meta extends object = any> extends BSBService<
       hostname,
       username,
       instance,
-      exp: new Date().getTime() + 5 * 60 * 1000,
+      exp: new Date().getTime() + 4 * 60 * 1000,
     });
     return instance;
   }
