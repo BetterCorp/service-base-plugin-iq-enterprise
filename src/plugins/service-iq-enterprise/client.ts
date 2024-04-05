@@ -177,7 +177,7 @@ export class IQEnterprise<
     hostname?: string,
     username?: string,
     password?: string
-  ): Promise<number> {
+  ): Promise<string> {
     return await this.events.emitEventAndReturn(
       "newApplication",
       30,

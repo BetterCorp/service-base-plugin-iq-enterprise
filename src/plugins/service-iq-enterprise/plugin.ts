@@ -88,7 +88,7 @@ export interface Events<Meta extends object> extends BSBPluginEvents {
       hostname?: string,
       username?: string,
       password?: string
-    ): Promise<number>;
+    ): Promise<string>;
     getApplications(
       email: string,
       hostname?: string,
@@ -364,11 +364,11 @@ export class Plugin<Meta extends object = any> extends BSBService<
         delete data.meta;
         (data as any).debitorder = true;
         const resp = await axios.post<{
-          idapplication?: number;
+          uid?: string;
         }>(`/api/portal/application/create`, data);
         if (resp.status == 200) {
-          if (Tools.isNumber(resp.data.idapplication)) {
-            return resp.data.idapplication;
+          if (Tools.isString(resp.data.uid)) {
+            return resp.data.uid;
           }
         }
         throw new Error(
