@@ -196,11 +196,10 @@ export interface APIRoutersResponse {
   model: string;
   sku: string;
   cost: number;
+  calcprice: number;
   ports: string;
   wrange: string;
   wspeed: string;
-  special: boolean;
-  specialcost: number;
 }
 export interface APIBanksResponse {
   bank: string;
