@@ -464,14 +464,13 @@ export class Plugin<Meta extends object = any>
             password?: string,
         ) => {
           const axios: Axios = await this.getAxios(hostname, username, password);
-          let resp: AxiosResponse<APIServiceUsageResponse>;
-          let query: Record<string, string> = {
+          const query: Record<string, string> = {
             month: `${year}${month < 10 ? `0${month}` : month}`,
           };
           if (Tools.isNumber(day)) {
             query.day = day.toFixed(0);
           }
-          resp = await axios.get<APIServiceUsageResponse>(
+          const resp = await axios.get<APIServiceUsageResponse>(
               `/api/portal/usage/${encodeURIComponent(
                   id,
               )}?${Object.keys(query)
