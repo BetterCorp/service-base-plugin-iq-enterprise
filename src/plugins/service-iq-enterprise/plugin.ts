@@ -316,8 +316,8 @@ export class Plugin<Meta extends object = any>
               )}`,
           );
           if (resp.status == 200) {
-            return resp.data.map(x=>{
-              let returnObject: APIServicesResponse = {} as any;
+            return resp.data.map(x => {
+              const returnObject: APIServicesResponse = {} as any;
               returnObject.idgroup = Number.parseInt(x.idgroup as unknown as string);
               returnObject.description = x.description;
               returnObject.packages = x.packages;
@@ -343,7 +343,7 @@ export class Plugin<Meta extends object = any>
               `/api/portal/services/group/${encodeURIComponent(id)}`,
           );
           if (resp.status == 200) {
-            let returnObject: APIServicesResponse = {} as any;
+            const returnObject: APIServicesResponse = {} as any;
             returnObject.idgroup = Number.parseInt(resp.data.idgroup as unknown as string);
             returnObject.description = resp.data.description;
             returnObject.packages = resp.data.packages;
