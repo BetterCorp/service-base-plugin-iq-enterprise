@@ -1,5 +1,7 @@
 export { IQEnterprise } from "./plugins/service-iq-enterprise/client";
 
+export type ServiceStatus = 'Active' | 'Suspended' | 'Inactive';
+
 export interface ServiceUsageData {
   timeSlot: number;
   downloadKBytes: number;
@@ -106,7 +108,7 @@ export type APIApplicationResponse<Meta extends object> =
     NewAPIApplicationBaseApplication;
 
 export interface APIServicesResponse {
-  idgroup: string;
+  idgroup: number;
   description: string;
   packages: APIServicesResponsePackage[];
   installcosts: Array<APIServicesResponseInstallCost>;
@@ -145,6 +147,7 @@ export interface APICustomerSubAccount {
   account: string;
   description: string;
   address: string;
+  status: ServiceStatus;
 }
 
 export interface APICustomerSpecific {
@@ -158,7 +161,7 @@ export interface APICustomerSpecific {
   };
   value: string;
   speed: string;
-  status: string;
+  status: ServiceStatus;
   branch: string;
   contact: string;
   telephone: string;

@@ -316,7 +316,14 @@ export class Plugin<Meta extends object = any>
               )}`,
           );
           if (resp.status == 200) {
-            return resp.data;
+            return resp.data.map(x=>{
+              let returnObject: APIServicesResponse = {} as any;
+              returnObject.idgroup = Number.parseInt(x.idgroup as unknown as string);
+              returnObject.description = x.description;
+              returnObject.packages = x.packages;
+              returnObject.installcosts = x.installcosts;
+              return returnObject;
+            });
           }
           throw new Error(
               `Error ${resp.status}: ${resp.statusText} [${resp.data}]`,
@@ -336,7 +343,12 @@ export class Plugin<Meta extends object = any>
               `/api/portal/services/group/${encodeURIComponent(id)}`,
           );
           if (resp.status == 200) {
-            return resp.data;
+            let returnObject: APIServicesResponse = {} as any;
+            returnObject.idgroup = Number.parseInt(resp.data.idgroup as unknown as string);
+            returnObject.description = resp.data.description;
+            returnObject.packages = resp.data.packages;
+            returnObject.installcosts = resp.data.installcosts;
+            return returnObject;
           }
           throw new Error(
               `Error ${resp.status}: ${resp.statusText} [${resp.data}]`,
