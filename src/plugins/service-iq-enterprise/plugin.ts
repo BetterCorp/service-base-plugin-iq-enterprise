@@ -521,6 +521,9 @@ export class Plugin<Meta extends object = any>
             asDate.setMinutes(asDate.getMinutes() + timeZoneOffset);
             dateAsEpoc = asDate.getTime();
           }
+          if (Number.isNaN(dateAsEpoc)) {
+            dateAsEpoc = null;
+          }
           return {
             status: result as UpgradeDowngradeStatus,
             eta: dateAsEpoc,
