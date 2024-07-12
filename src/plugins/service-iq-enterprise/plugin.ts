@@ -557,6 +557,7 @@ export class Plugin<Meta extends object = any>
             accountId: string,
             customerId: number,
             requestedPackageId: number,
+            action: "Immediate" | "Scheduled",
             hostname?: string,
             username?: string,
             password?: string,
@@ -588,9 +589,9 @@ export class Plugin<Meta extends object = any>
               username,
               password,
           );
-          if (upgradePossibility.status === "approve") {
+          if (upgradePossibility.status === "scheduled" && action === "Immediate") {
             throw new BSBError(
-                "Approval is required for this upgrade/downgrade [{accountId}|{customerId}] {currentPackage}->{requestedPackage}",
+                "Scheduled upgrade/downgrade is required for this upgrade/downgrade [{accountId}|{customerId}] {currentPackage}->{requestedPackage}",
                 {
                   accountId,
                   customerId,
@@ -599,6 +600,17 @@ export class Plugin<Meta extends object = any>
                 },
             );
           }
+          /*if (upgradePossibility.status === "approve") {
+           throw new BSBError(
+           "Approval is required for this upgrade/downgrade [{accountId}|{customerId}] {currentPackage}->{requestedPackage}",
+           {
+           accountId,
+           customerId,
+           currentPackage: customer.package.id,
+           requestedPackage: requestedPackageId,
+           },
+           );
+           }*/
           const requestedPackage = await getServiceById(
               requestedPackageId,
               hostname,
@@ -610,7 +622,7 @@ export class Plugin<Meta extends object = any>
               `/api/portal/services/${accountId}/update?customerid=${customerId}&packageName=${encodeURIComponent(
                   requestedPackage.package,
               )}&packageid=${requestedPackageId}&action=${
-                  upgradePossibility.status
+                  action
               }`,
           );
           if (resp.status == 200 && resp.data.status === "Success") {
