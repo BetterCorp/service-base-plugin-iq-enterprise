@@ -148,17 +148,25 @@ export interface APICustomerSubAccount {
   description: string;
   address: string;
   status: ServiceStatus;
+  package: APICustomerSpecificPackage;
 }
 
+export interface APICustomerSpecificPackage {
+  id: number;
+  groupid: number;
+  action: {
+    id: number,
+    groupid: number,
+    actiondate: number,
+    cancellation: boolean
+  } | null
+}
 export interface APICustomerSpecific {
   idcustomer: number;
   account: string;
   description: string;
   aka: string;
-  package: {
-    id: number;
-    groupid: number;
-  };
+  package: APICustomerSpecificPackage;
   value: string;
   speed: string;
   status: ServiceStatus;

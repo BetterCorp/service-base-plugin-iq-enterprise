@@ -201,7 +201,15 @@ export class Plugin<Meta extends object = any>
               await axios.get<Array<APICustomerAccount>>(
                   `/api/portal/customer?email=${encodeURIComponent(email)}`,
               )
-          ).data;
+          ).data.map(x => {
+            x.sub_accounts = x.sub_accounts.map(y => {
+              if (y.package.action && y.package.action.actiondate) {
+                y.package.action.actiondate = Date.parse(y.package.action.actiondate as unknown as string);
+              }
+              return y;
+            })
+            return x;
+          });
         },
     );
     const getCustomerById = async (
@@ -218,6 +226,9 @@ export class Plugin<Meta extends object = any>
         return null;
       }
       if (resp.status == 200) {
+        if (resp.data.package.action && resp.data.package.action.actiondate) {
+          resp.data.package.action.actiondate = Date.parse(resp.data.package.action.actiondate as unknown as string);
+        }
         return resp.data;
       }
       throw new Error(
@@ -246,6 +257,12 @@ export class Plugin<Meta extends object = any>
               `/api/portal/customer/account/${encodeURIComponent(id)}`,
           );
           if (resp.status == 200 && resp.data.account !== null) {
+            resp.data.sub_accounts = resp.data.sub_accounts.map(y => {
+              if (y.package.action && y.package.action.actiondate) {
+                y.package.action.actiondate = Date.parse(y.package.action.actiondate as unknown as string);
+              }
+              return y;
+            })
             return resp.data;
           }
           if (resp.status == 200 && resp.data.account === null) {
@@ -269,7 +286,12 @@ export class Plugin<Meta extends object = any>
               `/api/portal/customer/account/${id}/detail`,
           );
           if (resp.status == 200 && Tools.isArray(resp.data)) {
-            return resp.data;
+            return resp.data.map(x => {
+              if (x.package.action && x.package.action.actiondate) {
+                x.package.action.actiondate = Date.parse(x.package.action.actiondate as unknown as string);
+              }
+              return x;
+            });
           }
           throw new Error(
               `Error ${resp.status}: ${resp.statusText} [${resp.data}]`,
@@ -318,7 +340,7 @@ export class Plugin<Meta extends object = any>
           if (resp.status == 200) {
             return resp.data.map(x => {
               const returnObject: APIServicesResponse = {} as any;
-              returnObject.idgroup = Number.parseInt(x.idgroup as unknown as string);
+              returnObject.idgroup = typeof x.idgroup === 'number' ? x.idgroup : Number.parseInt(x.idgroup as unknown as string);
               returnObject.description = x.description;
               returnObject.packages = x.packages;
               returnObject.installcosts = x.installcosts;
