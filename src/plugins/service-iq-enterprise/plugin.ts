@@ -41,6 +41,12 @@ export interface Events<Meta extends object>
         username?: string,
         password?: string,
     ): Promise<Array<APICustomerAccount>>;
+    getCustomersByPhone(
+        phone: string,
+        hostname?: string,
+        username?: string,
+        password?: string,
+    ): Promise<Array<APICustomerAccount>>;
     getCustomerByAccountId(
         id: string,
         hostname?: string,
@@ -200,6 +206,30 @@ export class Plugin<Meta extends object = any>
           return (
               await axios.get<Array<APICustomerAccount>>(
                   `/api/portal/customer?email=${encodeURIComponent(email)}`,
+              )
+          ).data.map(x => {
+            x.sub_accounts = x.sub_accounts.map(y => {
+              if (y.package.action && y.package.action.actiondate) {
+                y.package.action.actiondate = Date.parse(y.package.action.actiondate as unknown as string);
+              }
+              return y;
+            })
+            return x;
+          });
+        },
+    );
+    await this.events.onReturnableEvent(
+        "getCustomersByPhone",
+        async (
+            phone: string,
+            hostname?: string,
+            username?: string,
+            password?: string,
+        ) => {
+          const axios: Axios = await this.getAxios(hostname, username, password);
+          return (
+              await axios.get<Array<APICustomerAccount>>(
+                  `/api/portal/customer/cellnr?cell=${encodeURIComponent(phone)}`,
               )
           ).data.map(x => {
             x.sub_accounts = x.sub_accounts.map(y => {
