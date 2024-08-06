@@ -181,6 +181,8 @@ export interface APICustomerSpecific {
   postal1: string;
   postal2: string;
   ptown: string;
+  latitude: number;
+  longitude: number;
 }
 
 export interface APICustomerSpecificCellNumber {
