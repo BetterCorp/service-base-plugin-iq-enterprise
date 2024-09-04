@@ -60,6 +60,7 @@ export type NewAPIApplicationBaseBank = {
   bank: string;
   bcode: string;
   baccount: string;
+  debitorder: boolean;
   btype: "Savings" | "Cheque" | "Transmission" | "Credit" | "Checking";
 };
 export type NewAPIApplicationBaseGPS = {
