@@ -102,6 +102,12 @@ export interface Events<Meta extends object>
         username?: string,
         password?: string,
     ): Promise<Array<APIApplicationResponse<Meta>>>;
+    getApplication(
+        uid: string,
+        hostname?: string,
+        username?: string,
+        password?: string,
+    ): Promise<APIApplicationResponse<Meta>>;
     updateApplication(
         applicationId: number,
         data: NewAPIApplication<Meta>,
@@ -496,17 +502,42 @@ export class Plugin<Meta extends object = any>
             password?: string,
         ) => {
           const axios: Axios = await this.getAxios(hostname, username, password);
-          const resp = await axios.get<Array<APIApplicationResponse<any>>>(
+          const resp = await axios.get<Array<APIApplicationResponse<any> & {portalmeta?: string}>>(
               `/api/portal/application/${encodeURIComponent(email)}`,
           );
           if (resp.status == 200 && resp.data) {
-            return resp.data.map((d: any) => {
+            return resp.data.map((d) => {
               d.meta = Tools.isString(d.portalmeta)
-                       ? JSON.parse(d.portalmeta)
-                       : null;
+                  ? JSON.parse(d.portalmeta)
+                  : null;
               delete d.portalmeta;
               return d;
             });
+          }
+          throw new Error(
+              `Error ${resp.status}: ${resp.statusText} [${resp.data}]`,
+          );
+        },
+    );
+    await this.events.onReturnableEvent(
+        "getApplication",
+        async (
+            uid: string,
+            hostname?: string,
+            username?: string,
+            password?: string,
+        ) => {
+          const axios: Axios = await this.getAxios(hostname, username, password);
+          const resp = await axios.get<APIApplicationResponse<any> & {portalmeta?: string}>(
+              `/api/portal/application/id/${encodeURIComponent(uid)}`,
+          );
+          if (resp.status == 200 && resp.data) {
+            let d = resp.data;
+            d.meta = Tools.isString(d.portalmeta)
+                ? JSON.parse(d.portalmeta)
+                : null;
+            delete d.portalmeta;
+            return d;
           }
           throw new Error(
               `Error ${resp.status}: ${resp.statusText} [${resp.data}]`,
@@ -535,8 +566,8 @@ export class Plugin<Meta extends object = any>
               `/api/portal/usage/${encodeURIComponent(
                   id,
               )}?${Object.keys(query)
-                         .map(x => `${x}=${encodeURIComponent(query[x])}`)
-                         .join("&")}`,
+                  .map(x => `${x}=${encodeURIComponent(query[x])}`)
+                  .join("&")}`,
           );
           if (resp.status == 200) {
             return resp.data;
@@ -560,7 +591,7 @@ export class Plugin<Meta extends object = any>
       if (resp.status == 200 && Tools.isString(resp.data.status)) {
         const result = resp.data.status.toLowerCase();
         if (Object.keys(UpgradeDowngradeStatusTypes)
-                  .indexOf(result) !== -1) {
+            .indexOf(result) !== -1) {
           let dateAsEpoc = null;
           if (Tools.isString(resp.data.eta)) {
             const timeStr = "00:00:00";
@@ -771,7 +802,7 @@ export class Plugin<Meta extends object = any>
   ): Promise<Axios> {
     const now = new Date().getTime();
     if (cleanup) {
-      for (let i = 0 ; i < this._axios.length ; i++) {
+      for (let i = 0; i < this._axios.length; i++) {
         if (this._axios[i].hostname !== hostname) {
           continue;
         }
@@ -781,7 +812,7 @@ export class Plugin<Meta extends object = any>
         this._axios.splice(i, 1);
       }
     }
-    for (let i = 0 ; i < this._axios.length ; i++) {
+    for (let i = 0; i < this._axios.length; i++) {
       if (this._axios[i].hostname !== hostname) {
         continue;
       }
@@ -821,7 +852,7 @@ export class Plugin<Meta extends object = any>
             instance.defaults.headers.common[
                 "Authorization"
                 ] = `Bearer ${await self.getToken(instance, username, password)}`;
-            for (let i = 0 ; i < self._axios.length ; i++) {
+            for (let i = 0; i < self._axios.length; i++) {
               if (self._axios[i].hostname !== hostname) {
                 continue;
               }
@@ -833,8 +864,7 @@ export class Plugin<Meta extends object = any>
             }
 
             return instance(config);
-          }
-          catch (e: any) {
+          } catch (e: any) {
             self.log.error(e.message ?? e, {});
           }
           // Do something with response error

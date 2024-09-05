@@ -244,6 +244,22 @@ export class IQEnterprise<
     );
   }
 
+  public async getApplication(
+      uid: string,
+      hostname?: string,
+      username?: string,
+      password?: string,
+  ): Promise<APIApplicationResponse<Meta>> {
+    return await this.events.emitEventAndReturn(
+        "getApplication",
+        30,
+        uid,
+        hostname ?? this.customConfig.hostname,
+        username ?? this.customConfig.username,
+        password ?? this.customConfig.password,
+    );
+  }
+
   public async getServiceUsageBySubAccount(
       subAccountId: string,
       month: number,
