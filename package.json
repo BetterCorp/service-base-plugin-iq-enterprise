@@ -16,7 +16,7 @@
     "lib/**/*"
   ],
   "main": "lib/index.js",
-  "version": "2.0.40",
+  "version": "2.0.42",
   "bsb_project": true,
   "devDependencies": {
     "@types/assert": "^1.5.10",
