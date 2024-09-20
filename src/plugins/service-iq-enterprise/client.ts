@@ -1,6 +1,5 @@
 import {BSBService, BSBServiceClient} from "@bettercorp/service-base";
 import {
-  APIApplicationResponse,
   APIBanksResponse,
   APICustomerAccount,
   APICustomerSpecific,
@@ -8,8 +7,6 @@ import {
   APIServiceUsageResponse,
   APIServicesResponse,
   APIServicesResponsePackage,
-  NewAPIApplication,
-  PartialNewAPIApplication,
   UpgradeDowngradeInfo, Application,
 } from "../../index";
 import {Plugin} from "./plugin";

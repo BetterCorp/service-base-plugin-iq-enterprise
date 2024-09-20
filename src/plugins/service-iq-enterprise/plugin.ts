@@ -515,7 +515,7 @@ export class Plugin<Meta extends object = any>
               `/api/portal/application/id/${encodeURIComponent(uid)}`,
           );
           if (resp.status == 200 && resp.data) {
-            let d = resp.data as Application<false, unknown>;
+            const d = resp.data as Application<false, unknown>;
             d.portalmeta = Tools.isString(d.portalmeta)
                 ? JSON.parse(d.portalmeta)
                 : null;

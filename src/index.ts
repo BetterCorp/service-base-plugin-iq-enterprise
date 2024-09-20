@@ -276,7 +276,7 @@ export type BaseApplicationCreated = {
   idapplication: number;
   uid: string;
 }
-export type BaseApplicationDefault<PortalMeta extends any = string> = {
+export type BaseApplicationDefault<PortalMeta = string> = {
   description: string;
   type: string;
   tel: string;
@@ -289,11 +289,11 @@ export type BaseApplicationDefault<PortalMeta extends any = string> = {
   id: string;
   portalmeta: PortalMeta | null;
 };
-export type BaseApplication<New extends boolean = false, PortalMeta extends any = string> = New extends true
+export type BaseApplication<New extends boolean = false, PortalMeta = string> = New extends true
     ? BaseApplicationDefault
     : BaseApplicationCreated & BaseApplicationDefault<PortalMeta>;
 
-export type NewApplication<New extends boolean = false, PortalMeta extends any = string> =
+export type NewApplication<New extends boolean = false, PortalMeta = string> =
     BaseApplication<New, PortalMeta>
     & {
   apptype: 0;
@@ -308,7 +308,7 @@ export type NewApplication<New extends boolean = false, PortalMeta extends any =
   // newbank: undefined;
 };
 
-export type AddonApplication<New extends boolean = false, PortalMeta extends any = string> =
+export type AddonApplication<New extends boolean = false, PortalMeta = string> =
     BaseApplication<New, PortalMeta>
     & {
   apptype: 1;
@@ -323,7 +323,7 @@ export type AddonApplication<New extends boolean = false, PortalMeta extends any
   // newbank: undefined;
 };
 
-export type UpgradeApplication<New extends boolean = false, PortalMeta extends any = string> =
+export type UpgradeApplication<New extends boolean = false, PortalMeta = string> =
     BaseApplication<New, PortalMeta>
     & {
   apptype: 2;
@@ -338,7 +338,7 @@ export type UpgradeApplication<New extends boolean = false, PortalMeta extends a
   // newbank: undefined;
 };
 
-export type DowngradeApplication<New extends boolean = false, PortalMeta extends any = string> =
+export type DowngradeApplication<New extends boolean = false, PortalMeta = string> =
     BaseApplication<New, PortalMeta>
     & {
   apptype: 3;
@@ -353,7 +353,7 @@ export type DowngradeApplication<New extends boolean = false, PortalMeta extends
   // newbank: undefined;
 };
 
-export type CancelApplication<New extends boolean = false, PortalMeta extends any = string> =
+export type CancelApplication<New extends boolean = false, PortalMeta = string> =
     BaseApplication<New, PortalMeta>
     & {
   apptype: 4;
@@ -368,7 +368,7 @@ export type CancelApplication<New extends boolean = false, PortalMeta extends an
   // newbank: undefined;
 };
 
-export type RelocateApplication<New extends boolean = false, PortalMeta extends any = string> =
+export type RelocateApplication<New extends boolean = false, PortalMeta = string> =
     BaseApplication<New, PortalMeta>
     & {
   apptype: 5;
@@ -383,7 +383,7 @@ export type RelocateApplication<New extends boolean = false, PortalMeta extends 
   // newbank: undefined;
 };
 
-export type DebitOrderApplication<New extends boolean = false, PortalMeta extends any = string> =
+export type DebitOrderApplication<New extends boolean = false, PortalMeta = string> =
     BaseApplication<New, PortalMeta>
     & {
   apptype: 6;
@@ -398,7 +398,7 @@ export type DebitOrderApplication<New extends boolean = false, PortalMeta extend
   // cancel: undefined;
 };
 
-export type Application<New extends boolean = true, PortalMeta extends any = string> =
+export type Application<New extends boolean = true, PortalMeta = string> =
     | NewApplication<New, PortalMeta>
     | AddonApplication<New, PortalMeta>
     | UpgradeApplication<New, PortalMeta>
@@ -406,7 +406,7 @@ export type Application<New extends boolean = true, PortalMeta extends any = str
     | CancelApplication<New, PortalMeta>
     | RelocateApplication<New, PortalMeta>
     | DebitOrderApplication<New, PortalMeta>;
-export type APIApplication<New extends boolean = true, PortalMeta extends any = string> = OneOf<[
+export type APIApplication<New extends boolean = true, PortalMeta = string> = OneOf<[
   NewApplication<New, PortalMeta>,
   AddonApplication<New, PortalMeta>,
   UpgradeApplication<New, PortalMeta>,
