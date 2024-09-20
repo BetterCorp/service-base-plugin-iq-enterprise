@@ -273,9 +273,20 @@ export type Cancel = {
 };
 
 export type BaseApplicationCreated = {
-  idapplication: number;
-  uid: string;
+  idapplication: Readonly<number>;
+  uid: Readonly<string>;
 }
+
+export enum ApplicationType {
+  New = 0,
+  Addon = 1,
+  Upgrade = 2,
+  Downgrade = 3,
+  Cancel = 4,
+  Relocate = 5,
+  DebitOrder = 6,
+}
+
 export type BaseApplicationDefault<PortalMeta = string> = {
   description: string;
   type: string;
@@ -288,6 +299,7 @@ export type BaseApplicationDefault<PortalMeta = string> = {
   email2: string;
   id: string;
   portalmeta: PortalMeta | null;
+  //apptype: ApplicationType;
 };
 export type BaseApplication<New extends boolean = false, PortalMeta = string> = New extends true
     ? BaseApplicationDefault
@@ -296,7 +308,7 @@ export type BaseApplication<New extends boolean = false, PortalMeta = string> = 
 export type NewApplication<New extends boolean = false, PortalMeta = string> =
     BaseApplication<New, PortalMeta>
     & {
-  apptype: 0;
+  apptype: New extends false ? ApplicationType.New : Readonly<ApplicationType.New>;
   address: Address;
   postal: Postal;
   package: string;
@@ -311,7 +323,7 @@ export type NewApplication<New extends boolean = false, PortalMeta = string> =
 export type AddonApplication<New extends boolean = false, PortalMeta = string> =
     BaseApplication<New, PortalMeta>
     & {
-  apptype: 1;
+  apptype: New extends false ? ApplicationType.Addon : Readonly<ApplicationType.Addon>;
   address: Address;
   postal: Postal;
   package: string;
@@ -326,7 +338,7 @@ export type AddonApplication<New extends boolean = false, PortalMeta = string> =
 export type UpgradeApplication<New extends boolean = false, PortalMeta = string> =
     BaseApplication<New, PortalMeta>
     & {
-  apptype: 2;
+  apptype: New extends false ? ApplicationType.Upgrade : Readonly<ApplicationType.Upgrade>;
   package: string;
   packageto: string;
   account: string;
@@ -341,7 +353,7 @@ export type UpgradeApplication<New extends boolean = false, PortalMeta = string>
 export type DowngradeApplication<New extends boolean = false, PortalMeta = string> =
     BaseApplication<New, PortalMeta>
     & {
-  apptype: 3;
+  apptype: New extends false ? ApplicationType.Downgrade : Readonly<ApplicationType.Downgrade>;
   package: string;
   packageto: string;
   account: string;
@@ -356,7 +368,7 @@ export type DowngradeApplication<New extends boolean = false, PortalMeta = strin
 export type CancelApplication<New extends boolean = false, PortalMeta = string> =
     BaseApplication<New, PortalMeta>
     & {
-  apptype: 4;
+  apptype: New extends false ? ApplicationType.Cancel : Readonly<ApplicationType.Cancel>;
   cancel: Cancel;
   account: string;
   package: string;
@@ -371,7 +383,7 @@ export type CancelApplication<New extends boolean = false, PortalMeta = string> 
 export type RelocateApplication<New extends boolean = false, PortalMeta = string> =
     BaseApplication<New, PortalMeta>
     & {
-  apptype: 5;
+  apptype: New extends false ? ApplicationType.Relocate : Readonly<ApplicationType.Relocate>;
   address: Address;
   relocate: Address;
   postal: Postal;
@@ -386,7 +398,7 @@ export type RelocateApplication<New extends boolean = false, PortalMeta = string
 export type DebitOrderApplication<New extends boolean = false, PortalMeta = string> =
     BaseApplication<New, PortalMeta>
     & {
-  apptype: 6;
+  apptype: New extends false ? ApplicationType.DebitOrder : Readonly<ApplicationType.DebitOrder>;
   payment: Payment;
   newbank: Payment;
   account: string;
