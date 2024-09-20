@@ -287,7 +287,7 @@ export enum ApplicationType {
   DebitOrder = 6,
 }
 
-export type BaseApplicationDefault<PortalMeta = string> = {
+export type BaseApplicationDefault<PortalMeta> = {
   description: string;
   type: 'Residential' | 'Business';
   tel: string;
@@ -301,11 +301,11 @@ export type BaseApplicationDefault<PortalMeta = string> = {
   portalmeta: PortalMeta | null;
   //apptype: ApplicationType;
 };
-export type BaseApplication<New extends boolean = false, PortalMeta = string> = New extends true
-    ? BaseApplicationDefault
+export type BaseApplication<New extends boolean, PortalMeta> = New extends true
+    ? BaseApplicationDefault<PortalMeta>
     : BaseApplicationCreated & BaseApplicationDefault<PortalMeta>;
 
-export type NewApplication<New extends boolean = false, PortalMeta = string> =
+export type NewApplication<New extends boolean, PortalMeta> =
     BaseApplication<New, PortalMeta>
     & {
   apptype: New extends true ? ApplicationType.New : Readonly<ApplicationType.New>;
@@ -320,7 +320,7 @@ export type NewApplication<New extends boolean = false, PortalMeta = string> =
   // newbank: undefined;
 };
 
-export type AddonApplication<New extends boolean = false, PortalMeta = string> =
+export type AddonApplication<New extends boolean, PortalMeta> =
     BaseApplication<New, PortalMeta>
     & {
   apptype: New extends true ? ApplicationType.Addon : Readonly<ApplicationType.Addon>;
@@ -335,7 +335,7 @@ export type AddonApplication<New extends boolean = false, PortalMeta = string> =
   // newbank: undefined;
 };
 
-export type UpgradeApplication<New extends boolean = false, PortalMeta = string> =
+export type UpgradeApplication<New extends boolean, PortalMeta> =
     BaseApplication<New, PortalMeta>
     & {
   apptype: New extends true ? ApplicationType.Upgrade : Readonly<ApplicationType.Upgrade>;
@@ -350,7 +350,7 @@ export type UpgradeApplication<New extends boolean = false, PortalMeta = string>
   // newbank: undefined;
 };
 
-export type DowngradeApplication<New extends boolean = false, PortalMeta = string> =
+export type DowngradeApplication<New extends boolean, PortalMeta> =
     BaseApplication<New, PortalMeta>
     & {
   apptype: New extends true ? ApplicationType.Downgrade : Readonly<ApplicationType.Downgrade>;
@@ -365,7 +365,7 @@ export type DowngradeApplication<New extends boolean = false, PortalMeta = strin
   // newbank: undefined;
 };
 
-export type CancelApplication<New extends boolean = false, PortalMeta = string> =
+export type CancelApplication<New extends boolean, PortalMeta> =
     BaseApplication<New, PortalMeta>
     & {
   apptype: New extends true ? ApplicationType.Cancel : Readonly<ApplicationType.Cancel>;
@@ -380,7 +380,7 @@ export type CancelApplication<New extends boolean = false, PortalMeta = string> 
   // newbank: undefined;
 };
 
-export type RelocateApplication<New extends boolean = false, PortalMeta = string> =
+export type RelocateApplication<New extends boolean, PortalMeta> =
     BaseApplication<New, PortalMeta>
     & {
   apptype: New extends true ? ApplicationType.Relocate : Readonly<ApplicationType.Relocate>;
@@ -395,7 +395,7 @@ export type RelocateApplication<New extends boolean = false, PortalMeta = string
   // newbank: undefined;
 };
 
-export type DebitOrderApplication<New extends boolean = false, PortalMeta = string> =
+export type DebitOrderApplication<New extends boolean, PortalMeta> =
     BaseApplication<New, PortalMeta>
     & {
   apptype: New extends true ? ApplicationType.DebitOrder : Readonly<ApplicationType.DebitOrder>;
