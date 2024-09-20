@@ -289,7 +289,7 @@ export enum ApplicationType {
 
 export type BaseApplicationDefault<PortalMeta = string> = {
   description: string;
-  type: string;
+  type: 'Residential' | 'Business';
   tel: string;
   vatnr: string;
   contact: string;
