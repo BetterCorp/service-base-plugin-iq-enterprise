@@ -1,4 +1,4 @@
-export { IQEnterprise } from "./plugins/service-iq-enterprise/client";
+export {IQEnterprise} from "./plugins/service-iq-enterprise/client";
 
 export type ServiceStatus = 'Active' | 'Suspended' | 'Inactive';
 
@@ -14,7 +14,7 @@ export const UpgradeDowngradeInfoStatusTypes = {
   Approve: "Approve",
 };
 export type UpgradeDowngradeInfoStatus =
-  (typeof UpgradeDowngradeInfoStatusTypes)[keyof typeof UpgradeDowngradeInfoStatusTypes];
+    (typeof UpgradeDowngradeInfoStatusTypes)[keyof typeof UpgradeDowngradeInfoStatusTypes];
 
 export const UpgradeDowngradeStatusTypes = {
   scheduled: "scheduled",
@@ -22,7 +22,7 @@ export const UpgradeDowngradeStatusTypes = {
   approve: "approve",
 };
 export type UpgradeDowngradeStatus =
-  (typeof UpgradeDowngradeStatusTypes)[keyof typeof UpgradeDowngradeStatusTypes];
+    (typeof UpgradeDowngradeStatusTypes)[keyof typeof UpgradeDowngradeStatusTypes];
 
 export interface UpgradeDowngradeReequestInfo {
   status: UpgradeDowngradeInfoStatus;
@@ -33,6 +33,7 @@ export interface UpgradeDowngradeInfo {
   status: UpgradeDowngradeStatus;
   eta: number | null;
 }
+
 export interface UpgradeDowngradeResponseInfo {
   status: "Success" | "Failed";
   message: string;
@@ -89,22 +90,22 @@ export type NewAPIApplicationBaseDetails = {
   id: string;
   package: string;
 } & NewAPIApplicationBaseBank &
-  NewAPIApplicationBaseGPS &
-  NewAPIApplicationBaseBilling &
-  NewAPIApplicationBasePostal;
+    NewAPIApplicationBaseGPS &
+    NewAPIApplicationBaseBilling &
+    NewAPIApplicationBasePostal;
 export type NewAPIApplication<Meta extends object> =
-  NewAPIApplicationBaseDetails & NewAPIApplicationBase<Meta>;
+    NewAPIApplicationBaseDetails & NewAPIApplicationBase<Meta>;
 
 export type PartialNewAPIApplication<Meta extends object> =
-  Partial<NewAPIApplicationBaseDetails> & NewAPIApplicationBase<Meta>;
+    Partial<NewAPIApplicationBaseDetails> & NewAPIApplicationBase<Meta>;
 
 export type UpdateNewAPIApplication<Meta extends object> =
-  NewAPIApplicationBaseDetails &
+    NewAPIApplicationBaseDetails &
     NewAPIApplicationBase<Meta> &
     NewAPIApplicationBaseApplication;
 
 export type APIApplicationResponse<Meta extends object> =
-  Partial<NewAPIApplicationBaseDetails> &
+    Partial<NewAPIApplicationBaseDetails> &
     NewAPIApplicationBase<Meta> &
     NewAPIApplicationBaseApplication;
 
@@ -162,6 +163,7 @@ export interface APICustomerSpecificPackage {
     cancellation: boolean
   } | null
 }
+
 export interface APICustomerSpecific {
   idcustomer: number;
   account: string;
@@ -199,6 +201,7 @@ export interface APIAuthResponse {
   idtechnician: number;
   tokenstring: string;
 }
+
 export interface APIAuthRequest {
   username: string;
   password: string;
@@ -215,7 +218,200 @@ export interface APIRoutersResponse {
   wrange: string;
   wspeed: string;
 }
+
 export interface APIBanksResponse {
   bank: string;
   code: string;
 }
+
+export type MergeTypes<TypesArray extends any[], Res = {}> =
+    TypesArray extends [infer Head, ...infer Rem]
+        ? MergeTypes<Rem, Res & Head>
+        : Res;
+
+export type OnlyFirst<F, S> = F & { [Key in keyof Omit<S, keyof F>]?: never };
+
+export type OneOf<
+    TypesArray extends any[],
+    Res = never,
+    AllProperties = MergeTypes<TypesArray>> =
+    TypesArray extends [infer Head, ...infer Rem]
+        ? OneOf<Rem, Res | OnlyFirst<Head, AllProperties>, AllProperties>
+        : Res;
+
+export type Coordinates = {
+  latitude: number;
+  longitude: number;
+};
+
+export type Address = {
+  address1: string;
+  address2: string;
+  atown: string;
+  acode: string;
+  coordinates: Coordinates;
+};
+
+export type Postal = {
+  postal1: string;
+  postal2: string;
+  ptown: string;
+  pcode: string;
+};
+
+export type Payment = {
+  debitorder: boolean;
+  bank: string;
+  bcode: string;
+  baccount: string;
+  btype: string;
+};
+
+export type Cancel = {
+  reason: string;
+  cdate: string;
+};
+
+export type BaseApplicationCreated = {
+  idapplication: number;
+  uid: string;
+}
+export type BaseApplicationDefault<PortalMeta extends any = string> = {
+  description: string;
+  type: string;
+  tel: string;
+  vatnr: string;
+  contact: string;
+  cell1: string;
+  email1: string;
+  cell2: string;
+  email2: string;
+  id: string;
+  portalmeta: PortalMeta | null;
+};
+export type BaseApplication<New extends boolean = false, PortalMeta extends any = string> = New extends true
+    ? BaseApplicationDefault
+    : BaseApplicationCreated & BaseApplicationDefault<PortalMeta>;
+
+export type NewApplication<New extends boolean = false, PortalMeta extends any = string> =
+    BaseApplication<New, PortalMeta>
+    & {
+  apptype: 0;
+  address: Address;
+  postal: Postal;
+  package: string;
+  //packageto: string;
+  payment: Payment;
+  account: string;
+  // relocate: undefined;
+  // cancel: undefined;
+  // newbank: undefined;
+};
+
+export type AddonApplication<New extends boolean = false, PortalMeta extends any = string> =
+    BaseApplication<New, PortalMeta>
+    & {
+  apptype: 1;
+  address: Address;
+  postal: Postal;
+  package: string;
+  //packageto: string;
+  account: string;
+  // relocate: undefined;
+  // cancel: undefined;
+  // payment: undefined;
+  // newbank: undefined;
+};
+
+export type UpgradeApplication<New extends boolean = false, PortalMeta extends any = string> =
+    BaseApplication<New, PortalMeta>
+    & {
+  apptype: 2;
+  package: string;
+  packageto: string;
+  account: string;
+  // address: undefined;
+  // postal: undefined;
+  // relocate: undefined;
+  // cancel: undefined;
+  // payment: undefined;
+  // newbank: undefined;
+};
+
+export type DowngradeApplication<New extends boolean = false, PortalMeta extends any = string> =
+    BaseApplication<New, PortalMeta>
+    & {
+  apptype: 3;
+  package: string;
+  packageto: string;
+  account: string;
+  // address: undefined;
+  // postal: undefined;
+  // relocate: undefined;
+  // cancel: undefined;
+  // payment: undefined;
+  // newbank: undefined;
+};
+
+export type CancelApplication<New extends boolean = false, PortalMeta extends any = string> =
+    BaseApplication<New, PortalMeta>
+    & {
+  apptype: 4;
+  cancel: Cancel;
+  account: string;
+  package: string;
+  //packageto: string;
+  // address: undefined;
+  // postal: undefined;
+  // relocate: undefined;
+  // payment: undefined;
+  // newbank: undefined;
+};
+
+export type RelocateApplication<New extends boolean = false, PortalMeta extends any = string> =
+    BaseApplication<New, PortalMeta>
+    & {
+  apptype: 5;
+  address: Address;
+  relocate: Address;
+  postal: Postal;
+  account: string;
+  package: string;
+  //packageto: string;
+  // cancel: undefined;
+  // payment: undefined;
+  // newbank: undefined;
+};
+
+export type DebitOrderApplication<New extends boolean = false, PortalMeta extends any = string> =
+    BaseApplication<New, PortalMeta>
+    & {
+  apptype: 6;
+  payment: Payment;
+  newbank: Payment;
+  account: string;
+  package: string;
+  //packageto: string;
+  // address: undefined;
+  // postal: undefined;
+  // relocate: undefined;
+  // cancel: undefined;
+};
+
+export type Application<New extends boolean = true, PortalMeta extends any = string> =
+    | NewApplication<New, PortalMeta>
+    | AddonApplication<New, PortalMeta>
+    | UpgradeApplication<New, PortalMeta>
+    | DowngradeApplication<New, PortalMeta>
+    | CancelApplication<New, PortalMeta>
+    | RelocateApplication<New, PortalMeta>
+    | DebitOrderApplication<New, PortalMeta>;
+export type APIApplication<New extends boolean = true, PortalMeta extends any = string> = OneOf<[
+  NewApplication<New, PortalMeta>,
+  AddonApplication<New, PortalMeta>,
+  UpgradeApplication<New, PortalMeta>,
+  DowngradeApplication<New, PortalMeta>,
+  CancelApplication<New, PortalMeta>,
+  RelocateApplication<New, PortalMeta>,
+  DebitOrderApplication<New, PortalMeta>
+]>;

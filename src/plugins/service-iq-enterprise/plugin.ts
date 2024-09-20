@@ -7,7 +7,6 @@ import {
   ServiceEventsBase,
 } from "@bettercorp/service-base";
 import {
-  APIApplicationResponse,
   APIAuthRequest,
   APIAuthResponse,
   APIBanksResponse,
@@ -17,13 +16,11 @@ import {
   APIServiceUsageResponse,
   APIServicesResponse,
   APIServicesResponsePackage,
-  NewAPIApplication,
-  PartialNewAPIApplication,
   UpgradeDowngradeInfo,
   UpgradeDowngradeReequestInfo,
   UpgradeDowngradeResponseInfo,
   UpgradeDowngradeStatus,
-  UpgradeDowngradeStatusTypes,
+  UpgradeDowngradeStatusTypes, Application,
 } from "../../index";
 import {Axios, AxiosResponse} from "axios";
 import {Tools} from "@bettercorp/tools/lib/Tools";
@@ -91,7 +88,7 @@ export interface Events<Meta extends object>
         password?: string,
     ): Promise<APIServicesResponsePackage>;
     newApplication(
-        data: PartialNewAPIApplication<Meta>,
+        data: Application<true, Meta>,
         hostname?: string,
         username?: string,
         password?: string,
@@ -101,16 +98,15 @@ export interface Events<Meta extends object>
         hostname?: string,
         username?: string,
         password?: string,
-    ): Promise<Array<APIApplicationResponse<Meta>>>;
+    ): Promise<Array<Application<false, Meta>>>;
     getApplication(
         uid: string,
         hostname?: string,
         username?: string,
         password?: string,
-    ): Promise<APIApplicationResponse<Meta>>;
+    ): Promise<Application<false, Meta>>;
     updateApplication(
-        applicationId: number,
-        data: NewAPIApplication<Meta>,
+        data: Application<false, Meta>,
         hostname?: string,
         username?: string,
         password?: string,
@@ -442,17 +438,13 @@ export class Plugin<Meta extends object = any>
     await this.events.onReturnableEvent(
         "newApplication",
         async (
-            data: PartialNewAPIApplication<any>,
+            data: Application<true, any>,
             hostname?: string,
             username?: string,
             password?: string,
         ) => {
           const axios: Axios = await this.getAxios(hostname, username, password);
-          (
-              data as any
-          ).portalmeta =
-              data.meta !== null ? JSON.stringify(data.meta) : null;
-          delete data.meta;
+          data.portalmeta = JSON.stringify(data.portalmeta);
           const resp = await axios.post<{
             uid?: string;
           }>(`/api/portal/application/create`, data);
@@ -469,22 +461,14 @@ export class Plugin<Meta extends object = any>
     await this.events.onReturnableEvent(
         "updateApplication",
         async (
-            applicationId: number,
-            data: NewAPIApplication<any>,
+            data: Application<false, any>,
             hostname?: string,
             username?: string,
             password?: string,
         ) => {
           const axios: Axios = await this.getAxios(hostname, username, password);
-          (
-              data as any
-          ).portalmeta =
-              data.meta !== null ? JSON.stringify(data.meta) : null;
-          delete data.meta;
-          const resp = await axios.put<{}>(`/api/portal/application/update`, {
-            idapplication: applicationId,
-            ...data,
-          });
+          data.portalmeta = JSON.stringify(data.portalmeta);
+          const resp = await axios.put<{}>(`/api/portal/application/update`, data);
           if (resp.status == 200) {
             return true;
           }
@@ -502,16 +486,15 @@ export class Plugin<Meta extends object = any>
             password?: string,
         ) => {
           const axios: Axios = await this.getAxios(hostname, username, password);
-          const resp = await axios.get<Array<APIApplicationResponse<any> & {portalmeta?: string}>>(
+          const resp = await axios.get<Array<Application<false, string>>>(
               `/api/portal/application/${encodeURIComponent(email)}`,
           );
           if (resp.status == 200 && resp.data) {
-            return resp.data.map((d) => {
-              d.meta = Tools.isString(d.portalmeta)
+            return resp.data.map((d: Application<false, unknown>) => {
+              d.portalmeta = Tools.isString(d.portalmeta)
                   ? JSON.parse(d.portalmeta)
                   : null;
-              delete d.portalmeta;
-              return d;
+              return d as Application<false, Meta>;
             });
           }
           throw new Error(
@@ -528,16 +511,15 @@ export class Plugin<Meta extends object = any>
             password?: string,
         ) => {
           const axios: Axios = await this.getAxios(hostname, username, password);
-          const resp = await axios.get<APIApplicationResponse<any> & {portalmeta?: string}>(
+          const resp = await axios.get<Application<false, string>>(
               `/api/portal/application/id/${encodeURIComponent(uid)}`,
           );
           if (resp.status == 200 && resp.data) {
-            let d = resp.data;
-            d.meta = Tools.isString(d.portalmeta)
+            let d = resp.data as Application<false, unknown>;
+            d.portalmeta = Tools.isString(d.portalmeta)
                 ? JSON.parse(d.portalmeta)
                 : null;
-            delete d.portalmeta;
-            return d;
+            return d as Application<false, Meta>;
           }
           throw new Error(
               `Error ${resp.status}: ${resp.statusText} [${resp.data}]`,

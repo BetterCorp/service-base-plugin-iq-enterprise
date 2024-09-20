@@ -10,7 +10,7 @@ import {
   APIServicesResponsePackage,
   NewAPIApplication,
   PartialNewAPIApplication,
-  UpgradeDowngradeInfo,
+  UpgradeDowngradeInfo, Application,
 } from "../../index";
 import {Plugin} from "./plugin";
 
@@ -195,7 +195,7 @@ export class IQEnterprise<
   }
 
   public async newApplication(
-      data: PartialNewAPIApplication<Meta>,
+      data: Application<true, Meta>,
       hostname?: string,
       username?: string,
       password?: string,
@@ -211,8 +211,7 @@ export class IQEnterprise<
   }
 
   public async updateApplication(
-      applicationId: number,
-      data: NewAPIApplication<Meta>,
+      data: Application<false, Meta>,
       hostname?: string,
       username?: string,
       password?: string,
@@ -220,7 +219,6 @@ export class IQEnterprise<
     return await this.events.emitEventAndReturn(
         "updateApplication",
         30,
-        applicationId,
         data,
         hostname ?? this.customConfig.hostname,
         username ?? this.customConfig.username,
@@ -233,7 +231,7 @@ export class IQEnterprise<
       hostname?: string,
       username?: string,
       password?: string,
-  ): Promise<Array<APIApplicationResponse<Meta>>> {
+  ): Promise<Array<Application<false, Meta>>> {
     return await this.events.emitEventAndReturn(
         "getApplications",
         30,
@@ -249,7 +247,7 @@ export class IQEnterprise<
       hostname?: string,
       username?: string,
       password?: string,
-  ): Promise<APIApplicationResponse<Meta>> {
+  ): Promise<Application<false, Meta>> {
     return await this.events.emitEventAndReturn(
         "getApplication",
         30,
