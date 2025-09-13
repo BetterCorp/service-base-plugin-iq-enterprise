@@ -36,6 +36,6 @@
   "dependencies": {
     "@bettercorp/service-base": "^8.5.63",
     "@bettercorp/tools": "^3.7.0",
-    "axios": "^1.6.7"
+    "axios": "^1.12.0"
   }
 }
